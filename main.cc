@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdio>
 
-#include "Args.h"
+#include "Options.h"
 
 using namespace std;
 
@@ -10,17 +10,22 @@ main (int argc, char *argv[])
 {
   try
   {
-    Args args(argc, argv);
-    cout << "input filename: " << args.filename() << endl;
+    Options options(argc, argv);
+    cout << "input filename: " << options.filename() << endl;
+  }
+  catch ( const option_error &e )
+  {
+    cerr << "Option Error: " << e.what() << endl;
+    Options::usage();
+    return 1;
   }
   catch(std::exception &e)
   {
     cerr << e.what() << endl;
+    Options::usage();
+    return 1;
   }
-  catch(...)
-  {
-    cerr << "Unknown exception" << endl;
-  }
+  return 0;
 }
 
 extern "C" {
