@@ -1,0 +1,15 @@
+# SlickEdit project files
+*.vpj
+*.vpw*
+*.vtg
+
+# scons stuff
+.sconsign*
+
+# generated files
+kspec_parser.c
+kspec_scanner.c
+
+# build products
+*.o
+kspec
