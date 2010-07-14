@@ -1,0 +1,11 @@
+COMPILER kspec
+
+PRODUCTIONS
+  kspec = Keyboard.
+  Keyboard = "Keyboard:" ident (Matrix | (KeyMap | {KeyMap}))
+  ident = [a-zA-Z0-9]+.
+  Matrix = "Matrix:"
+  KeyMap = "KeyMap:" ident
+
+END kspec.
+

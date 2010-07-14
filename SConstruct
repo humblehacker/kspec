@@ -6,25 +6,13 @@ else:
     env = Environment()
 
 env.Program(target='kspec', 
-            source=['parser.yy', 
-                    'scanner.lex.ll',
-                    'main.cc', 
-                    'options.cc',
-                    'parser_context.cc',
-                    'scanner.cc',
-                    'astree.cc',
-                    'auxlib.cc',
-                    'hashtable.cc'],
+            source=['Scanner.cpp',
+                    'Parser.cpp',
+                    'options.cc', 
+                    'main.cc'],
             ENV = {'PATH' : os.environ['PATH']},
-            LIBS=['fl'],
-            YACCFLAGS='')
-
-env.Clean('bison', ['parser.hh',
-                    'stack.hh',
-                    'position.hh',
-                    'location.hh'])
-
-env.Clean('flex', ['scanner.lex.h'])
+            LIBS=[''])
 
 
+bld = Builder(action = 'coco $SOURCE $TARGET')
 
