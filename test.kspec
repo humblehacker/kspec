@@ -1,13 +1,14 @@
 Keyboard:HumbleHackerReference
+
 Matrix:
-        Row: --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --
-        Row: --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --
-        Row: --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --
-        Row: --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --
-        Row: --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --
-        Row: --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --
-        Row: --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --
-        Row: --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --, --
+        Row: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+        Row: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+        Row: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+        Row: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+        Row: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+        Row: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+        Row: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+        Row: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   Cols:PE0 PE1 PC0 PC1 PC2 PC3 PC4 PC5 PC6 PC7 PD0 PD1 PD2 PD3 PD4 PD5 PD6 PD7
   Rows:PA0 PA1 PA2 PA3 PA4 PA5 PA6 PA7
 KeyMap:Common
@@ -102,7 +103,7 @@ KeyMap:US base:Common default
   Key:5J Map:,_and_\< tl:"<" bl:","
   Key:5K Map:._and_\> tl:">" bl:"."
   Key:5L Map:/_and_? tl:"?" bl:"/"
-  Key:5M Map:\_and_| tl:"|" bl:"\\"
+  Key:5M Map:\\_and_\| tl:"|" bl:"\\"
 KeyMap:DV base:US
   Key:2M Map:[_and_{ tl:"{" bl:"["
   Key:2N Map:]_and_} tl:"}" bl:"]"
@@ -223,7 +224,7 @@ KeyMap:JP base:US
   Key:3L Map:p_and_P tl:"P" tr:"『" br:"せ"
   Key:3M Map:[_and_{ tl:"`" bl:"@" br:"゛"
   Key:3N Map:]_and_} tl:"{" bl:"[" tr:"「" br:"゜"
-  Key:3O Map:\_and_| tl:"}" bl:"]" tr:"」" br:"む"
+  Key:3O Map:\\_and_\| tl:"}" bl:"]" tr:"」" br:"む"
   Key:4B Map:a_and_A tl:"A" br:"ち"
   Key:4C Map:s_and_S tl:"S" br:"と"
   Key:4D Map:d_and_D tl:"D" br:"し"
@@ -336,10 +337,10 @@ KeyMap:Fn base:Nm
     Key:1M Map:Scroll_Lock tl:"Scroll"
     Key:1N Map:Pause tl:"Pause"
     Key:1O Map:Keypad_Num_Lock_and_Clear tl:"N. Lock"
-    Key:5B Map:NonUS_\_and_| tl:"<"
-    Key:5C Map:NonUS_\_and_| <shift> tl:">"
-    Key:5D Map:NonUS_\_and_| <right_alt> tl:"¦"
-    Key:5E Map:NonUS_\_and_| <right_alt|shift> tl:"_"
+    Key:5B Map:NonUS_\\_and_\| tl:"\<"
+    Key:5C Map:NonUS_\\_and_\| <shift> tl:"\>"
+    Key:5D Map:NonUS_\\_and_\| <right_alt> tl:"¦"
+    Key:5E Map:NonUS_\\_and_\| <shift|right_alt> tl:"_"
     Key:6B Map:Keyboard_Cut tl:"Cut"
     Key:6C Map:Keyboard_Copy tl:"Copy"
     Key:6D Map:Keyboard_Paste tl:"Paste"
