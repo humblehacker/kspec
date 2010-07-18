@@ -11,6 +11,7 @@
 using namespace std;
 
 hh::Keyboard *parse(const Options &options);
+void dump(hh::Keyboard &kb);
 
 int
 main (int argc, char *argv[])
@@ -19,14 +20,9 @@ main (int argc, char *argv[])
   {
     hh::Keyboard *kb = NULL;
     Options options(argc, argv);
-    cout << "input filename: " << options.filename() << endl;
     kb = parse(options);
     assert(kb);
-    wcout << "Keyboard:" << kb->ident() << endl;
-    wcout << "Matrix: #rows: "  << kb->matrix().size() << endl;
-    wcout << "Matrix: #cols: "  << kb->matrix().front().size() << endl;
-    wcout << "RowPins: " << kb->rpins() << endl;
-    wcout << "ColPins: " << kb->cpins() << endl;
+    dump(*kb);
   }
   catch ( const option_error &e )
   {
@@ -46,6 +42,23 @@ main (int argc, char *argv[])
     return 1;
   }
   return 0;
+}
+
+void dump(hh::Keyboard &kb)
+{
+  wcout << "Keyboard: " << kb.ident() << endl;
+  wcout << "  Matrix: #rows: "  << kb.matrix().size() << endl;
+  wcout << "  Matrix: #cols: "  << kb.matrix().front().size() << endl;
+  wcout << "  RowPins: " << kb.rpins() << endl;
+  wcout << "  ColPins: " << kb.cpins() << endl;
+  wcout << "Keymaps #: " << kb.maps().size() << endl;
+  for (hh::KeyMaps::const_iterator i = kb.maps().begin(); i != kb.maps().end(); ++i)
+  {
+    wcout << "  Keymap: " << i->first << endl;
+    wcout << "    base: " << i->second.base() << endl;
+    wcout << "    default: " << i->second.default_map() << endl;
+    wcout << "    #Keys: " << i->second.keys().size() << endl;
+  }
 }
 
 hh::Keyboard *
