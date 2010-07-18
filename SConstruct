@@ -1,12 +1,20 @@
 import os
 
-if ARGUMENTS.get('debug', 0):
-    env = Environment(CCFLAGS = '-g')
-else:
-    env = Environment()
+env = Environment()
+debug = ARGUMENTS.get('debug', 0)
+if int(debug):
+    env.Append(CCFLAGS = '-g')
+    env.Append(LINKFLAGS = '-g')
+
+sourcefiles = ['Parser.cpp', 
+               'Scanner.cpp', 
+               'keyboard.cc',
+               'utils.cc',
+               'options.cc', 
+               'main.cc']
 
 env.Program(target = 'kspec', 
-            source = ['Parser.cpp', 'Scanner.cpp', 'options.cc', 'main.cc'],
+            source = sourcefiles,
             ENV    = {'PATH' : os.environ['PATH']},
             LIBS   = [''])
 

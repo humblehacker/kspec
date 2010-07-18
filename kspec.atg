@@ -1,21 +1,27 @@
+#include <iostream>
+#include "keyboard.h"
+#include "utils.h"
+
 COMPILER kspec
+
+  hh::Keyboard *kb;
 
 CHARACTERS
   letter  = 'A' .. 'Z' + 'a' .. 'z'.
   digit   = '0' .. '9'.
-	cr      = '\r'.
-	lf      = '\n'.
-	tab     = '\t'.
+  cr      = '\r'.
+  lf      = '\n'.
+  tab     = '\t'.
   id_ch   = letter + digit + "`~-_!@#$%^&*()+={}[]/?;.,".
   esc_ch  = ":<>'\"\\|".
-	stringCh  = ANY - '"' - '\\' - cr - lf.
-	charCh    = ANY - '\'' - '\\' - cr - lf.
-	printable =  '\u0020' .. '\u007e'.
+  stringCh  = ANY - '"' - '\\' - cr - lf.
+  charCh    = ANY - '\'' - '\\' - cr - lf.
+  printable =  '\u0020' .. '\u007e'.
 
 TOKENS
   ident   = (id_ch | "\\" esc_ch) {id_ch | "\\" esc_ch}.
-	string    = '"' { stringCh | '\\' printable } '"'.
-	badString = '"' { stringCh | '\\' printable } (cr | lf).
+  string    = '"' { stringCh | '\\' printable } '"'.
+  badString = '"' { stringCh | '\\' printable } (cr | lf).
 
 COMMENTS FROM "/*" TO "*/" NESTED
 COMMENTS FROM "//" TO lf
@@ -24,23 +30,76 @@ IGNORE cr + lf + tab
 
 PRODUCTIONS
   kspec    = Keyboard.
-  Keyboard = "Keyboard:" ident Matrix KeyMap {KeyMap}.
-  Matrix   = "Matrix:" Row {Row} Pinouts.
+
+/* ----------------------------------------------------------------------------- */
+  Keyboard = "Keyboard:" 
+    ident                          (. kb = new hh::Keyboard(t->val); .)  
+    Matrix                  
+    KeyMap {KeyMap}.
+
+/* ----------------------------------------------------------------------------- */
+  Matrix   = "Matrix:"             
+    Row
+    {
+      Row
+    } 
+    Pinouts.
+
+/* ----------------------------------------------------------------------------- */
   KeyMap   = "KeyMap:" ident {"base:" ident} ["default"] Key {Key}.
-  Row      = "Row:" ("--" | ident) {("--" | ident)}.
-  Pinouts  = PinCols PinRows.
-  PinCols  = "Cols:" ident {ident}.
-  PinRows  = "Rows:" ident {ident}.
+
+/* ----------------------------------------------------------------------------- */
+  Row = "Row:"                     (. kb->matrix().push_back(hh::MatrixRow());
+                                      hh::MatrixRow &row = kb->matrix().back(); .)
+  ("--" | ident)                   (. row.push_back(t->val); .) 
+  {
+    ("--" | ident)                 (. row.push_back(t->val); .) 
+  }.
+
+/* ----------------------------------------------------------------------------- */
+  Pinouts  = ColPins RowPins.
+
+/* ----------------------------------------------------------------------------- */
+  ColPins  = "Cols:"               
+    ident                          (. kb->cpins().push_back(t->val); .)
+    {
+      ident                        (. kb->cpins().push_back(t->val); .)
+    }.
+
+/* ----------------------------------------------------------------------------- */
+  RowPins  = "Rows:"
+    ident                          (. kb->rpins().push_back(t->val); .)
+    {
+      ident                        (. kb->rpins().push_back(t->val); .)
+    }.
+
+/* ----------------------------------------------------------------------------- */
   Key      = "Key:" ident Binding {Binding}.
+
+/* ----------------------------------------------------------------------------- */
   Binding  = {mods} (Map | Macro | Mode).
+
+/* ----------------------------------------------------------------------------- */
   Map      = "Map:" ident {mods} ["page:" ident] {labels}.
+
+/* ----------------------------------------------------------------------------- */
   Macro    = "Macro:" {labels} Map {Map}.
+
+/* ----------------------------------------------------------------------------- */
   Mode     = "Mode:" ident {"led:" ident} "type:" ("toggle" | "momentary") {labels}.
+
+/* ----------------------------------------------------------------------------- */
   labels   = ("tl" | "tr" | "tc" | "l" | "r" | "c" | "bl" | "bc" | "br") ":" string.
+
+/* ----------------------------------------------------------------------------- */
   modifier = ( "left_shift"  | "left_alt"  | "left_control"  | "left_gui" 
              | "right_shift" | "right_alt" | "right_control" | "right_gui" 
              | "shift"       | "alt"       | "control"       | "gui" ).
+
+/* ----------------------------------------------------------------------------- */
   mods     = "<" modifier { "|" modifier } ">".
+
+/* ----------------------------------------------------------------------------- */
 
 END kspec. 
 
