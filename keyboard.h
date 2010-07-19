@@ -4,60 +4,63 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <tr1/memory>
+
+#include "binding.h"
 
 namespace hh
 {
+using std::wstring;
 
-class Cell;
+class Keyboard;
 class KeyMap;
 class Key;
 
-typedef std::vector<std::wstring> WStrings;
+typedef std::tr1::shared_ptr<KeyMap> KeyMapPtr;
+typedef std::vector<wstring> WStrings;
 typedef WStrings IOPins;
 typedef WStrings MatrixRow;
-typedef std::vector<MatrixRow> Matrix;
-typedef std::map<std::wstring, KeyMap> KeyMaps;
-typedef std::map<std::wstring, Key> Keys;
+typedef std::tr1::shared_ptr<MatrixRow> MatrixRowPtr;
+typedef std::vector<MatrixRowPtr> Matrix;
+typedef std::map<wstring, KeyMapPtr> KeyMaps;
+typedef std::map<wstring, Key> Keys;
+typedef std::vector<Binding*> Bindings;
+typedef std::tr1::shared_ptr<Keyboard> KeyboardPtr;
 
 /*   K E Y   */
 class Key
 {
 public:
-  Key(const std::wstring &location = L"ZZ") : _location(location) {}
+  Key(const wstring &location = L"ZZ") : _location(location) {}
+
+  void add_binding(Binding *binding) { _bindings.push_back(binding); }
+  void add_label(LabelLocation loc, wstring label) { _labels[loc] = label; }
 
 private:
-  std::wstring _location;
+  wstring  _location;
+  Bindings _bindings;
+  Labels   _labels;
 };
 
 /*   K E Y M A P   */
 class KeyMap
 {
 public:
-  KeyMap(const std::wstring &name = L"") : _name(name), _default(false) {}
-  void set_base(const std::wstring &base) { _base = base; }
-  void make_default() { _default = true; }
+  KeyMap(const wstring &name = L"") : _name(name), _default(false) {}
+  void set_base(const wstring &base)     { _base = base; }
+  void make_default()                         { _default = true; }
 
-  const std::wstring & name() const { return _name; }
-  const std::wstring & base() const { return _base; }
-  bool default_map() const { return _default; }
-  const Keys & keys() const { return _keys; }
+  const wstring & name() const           { return _name; }
+  const wstring & base() const           { return _base; }
+  bool default_map() const                    { return _default; }
+  const Keys & keys() const                   { return _keys; }
 
-  Key & add_key(const std::wstring &location) { return _keys[location] = Key(location); }
+  Key & add_key(const wstring &location) { return _keys[location] = Key(location); }
 
 private:
-  std::wstring _name, _base;
+  wstring _name, _base;
   bool         _default;
   Keys         _keys;
-};
-
-/*   C E L L   */
-class Cell
-{
-public:
-  Cell(int row, int col) : _row(row), _col(col) {}
-
-private:
-  int _row, _col;
 };
 
 /*    K E Y B O A R D    */
@@ -65,20 +68,22 @@ private:
 class Keyboard
 {
 public:
-  Keyboard(const std::wstring &ident);
+  Keyboard(const wstring &ident);
 
-  void set_ident(const std::wstring &ident) { _ident = ident; }
-  const std::wstring &ident() const { return _ident; }
+  void set_ident(const wstring &ident) { _ident = ident; }
+  void add_col_pin(const wstring &pin) { _cpins.push_back(pin); }
+  void add_row_pin(const wstring &pin) { _rpins.push_back(pin); }
+  void add_matrix_row(MatrixRowPtr row)     { _matrix.push_back(row); }
+  void add_keymap(KeyMapPtr map)            { _maps[map->name()] = map; }
 
-  Matrix & matrix() { return _matrix; }
-  IOPins & cpins()  { return _cpins; }
-  IOPins & rpins()  { return _rpins; }
-  const KeyMaps &maps() const { return _maps; }
-
-  KeyMap& new_map(const std::wstring &name) { return _maps[name] = KeyMap(name); }
+  const wstring &ident() const         { return _ident; }
+  const Matrix &matrix() const              { return _matrix; }
+  const IOPins &cpins() const               { return _cpins; }
+  const IOPins &rpins() const               { return _rpins; }
+  const KeyMaps &maps() const               { return _maps; }
 
 private:
-  std::wstring _ident;
+  wstring _ident;
   Matrix       _matrix;
   IOPins       _cpins, _rpins;
   KeyMaps      _maps;

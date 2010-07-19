@@ -7,7 +7,7 @@ namespace hh
 {
 
 Keyboard::
-Keyboard(const std::wstring &ident) : _ident(ident)
+Keyboard(const wstring &ident) : _ident(ident)
 {
 }
 
