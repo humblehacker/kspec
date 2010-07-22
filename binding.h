@@ -1,6 +1,8 @@
 #ifndef __BINDING_H__
 #define __BINDING_H__
 
+#include "hid_usages.h"
+
 namespace hh
 {
 using std::wstring;
@@ -37,22 +39,24 @@ class Binding
 public:
   virtual ~Binding() {}
 
+  void set_premods(const Mods &premods) { _premods = premods; }
   void add_label(LabelLocation loc, wstring text) { _labels[loc] = text; }
 
 private:
+  Mods   _premods;
   Labels _labels;
 };
 
 class Map : public Binding
 {
 public:
-  Map(const std::wstring &usage) : _usage(usage) {}
+  Map(const Usage &usage, const Mods &mods) : _usage(usage), _mods(mods) {}
 
   void set_mods(const Mods &mods) { _mods = mods; }
   void set_page(const std::wstring &page) { _page = page; }
 
 private:
-  std::wstring _usage;
+  Usage        _usage;
   Mods         _mods;
   std::wstring _page;
 };

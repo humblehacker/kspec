@@ -91,27 +91,29 @@ PRODUCTIONS
     }.
 
 /* ----------------------------------------------------------------------------- */
-  Binding<hh::Binding **binding> = (. hh::Mods mods; .)
-    {Mods<mods>}
-    (Map<binding> | Macro<binding> | Mode<binding>)
+  Binding<hh::Binding **binding> = (. hh::Mods premods; .)
+    [Mods<premods>]
+    ( Map<binding>
+    | Macro<binding>
+    | Mode<binding>
+    )                              (. (*binding)->set_premods(premods); .)
     .
 
 /* ----------------------------------------------------------------------------- */
-  Map<hh::Binding **binding> =     (. hh::LabelLocation loc; std::wstring text;
+  Map<hh::Binding **binding> =     (. hh::LabelLocation loc; 
+                                      std::wstring label;
                                       std::wstring id;
                                       std::wstring page = L"Keyboard_and_Keypad"; .)
-    "Map:" Unslashed<id>           (. hh::Mods mods;
-                                      hh::Map *map = new hh::Map(id);
+    "Map:" Unslashed<id>           (. hh::Mods mods; .)
+    [Mods<mods>]
+    [
+      "page:" ident                (. page = t->val; .)
+    ]                              (. const hh::Usage &usage = hh::Usage::lookup(id, page);
+                                      hh::Map *map = new hh::Map(usage, mods);
                                       *binding = map; .)
     {
-      Mods<mods>                   (. map->set_mods(mods); .)
-    }
-    [
-      "page:" ident                (. page = t->val; map->set_page(page); .)
-    ]
-    {
-      label<loc, text>             (. map->add_label(loc, text); .)
-    }                              (. const hh::Usage &usage = hh::Usage::lookup(id, page); .)
+      Label<loc, label>            (. map->add_label(loc, label); .)
+    }                              
     .
 
 /* ----------------------------------------------------------------------------- */
@@ -120,7 +122,7 @@ PRODUCTIONS
                                       hh::Macro *macro = new hh::Macro();
                                       *binding = macro; .)
     {
-      label<loc, text>             (. macro->add_label(loc, text); .)
+      Label<loc, text>             (. macro->add_label(loc, text); .)
     }
     Map<&map>                      (. macro->add_map(dynamic_cast<hh::Map*>(map)); .)
     {
@@ -136,12 +138,12 @@ PRODUCTIONS
     }
     "type:" ("toggle" | "momentary")
     {
-      label<loc, text>             (. mode->add_label(loc, text); .)
+      Label<loc, text>             (. mode->add_label(loc, text); .)
     }
     .
 
 /* ----------------------------------------------------------------------------- */
-  label<hh::LabelLocation &loc, std::wstring &text> =
+  Label<hh::LabelLocation &loc, std::wstring &text> =
     ( "tl"                         (. loc = hh::top_left; .)
     | "tc"                         (. loc = hh::top_center; .)
     | "tr"                         (. loc = hh::top_right; .)

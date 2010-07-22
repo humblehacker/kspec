@@ -7,7 +7,8 @@ using std::endl;
 namespace hh
 {
 
-const Usage &Usage::lookup(const std::wstring &key, const std::wstring &page)
+const Usage &
+Usage::lookup(const std::wstring &key, const std::wstring &page)
 {
   wcout << "looking for usage: " << key << " in page: " << page << endl;
   Usage (*usages)[] = NULL;
