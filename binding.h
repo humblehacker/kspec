@@ -14,9 +14,23 @@ enum LabelLocation
 
 typedef std::map<LabelLocation, wstring> Labels;
 
-class Mods
+enum Modifier
 {
+  left_shift,
+  left_alt,
+  left_control,
+  left_gui,
+  right_shift,
+  right_alt,
+  right_control,
+  right_gui,
+  shift,
+  alt,
+  control,
+  gui
 };
+
+typedef std::vector<Modifier> Mods;
 
 class Binding
 {

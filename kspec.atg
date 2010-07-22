@@ -1,5 +1,6 @@
 #include <iostream>
 #include "keyboard.h"
+#include "hid_usages.h"
 #include "utils.h"
 
 COMPILER kspec
@@ -30,21 +31,21 @@ IGNORE cr + lf + tab
 
 PRODUCTIONS
 /* ----------------------------------------------------------------------------- */
-  kspec = 
+  kspec =
     Keyboard.
 
 /* ----------------------------------------------------------------------------- */
-  Keyboard = 
-    "Keyboard:" ident               (. kb.reset(new hh::Keyboard(t->val)); .)  
-    Matrix                  
+  Keyboard =
+    "Keyboard:" ident               (. kb.reset(new hh::Keyboard(t->val)); .)
+    Matrix
     KeyMap {KeyMap}.
 
 /* ----------------------------------------------------------------------------- */
-  Matrix = 
+  Matrix =
     "Matrix:" Row { Row } Pinouts.
 
 /* ----------------------------------------------------------------------------- */
-  KeyMap = 
+  KeyMap =
     "KeyMap:" ident                 (. hh::KeyMapPtr map(new hh::KeyMap(t->val)); .)
     {"base:" ident}                 (. map->set_base(t->val); .)
     ["default"]                     (. map->make_default(); .)
@@ -52,37 +53,41 @@ PRODUCTIONS
     .
 
 /* ----------------------------------------------------------------------------- */
-  Row = 
+  Row =
     "Row:"                         (. hh::MatrixRowPtr row(new hh::MatrixRow()); .)
-    ("--" | ident)                 (. row->push_back(t->val); .) 
-    { ("--" | ident)               (. row->push_back(t->val); .)  
-    }                              (. kb->add_matrix_row(row); .) 
+    ("--" | ident)                 (. row->push_back(t->val); .)
+    {
+      ("--" | ident)               (. row->push_back(t->val); .)
+    }                              (. kb->add_matrix_row(row); .)
   .
 
 /* ----------------------------------------------------------------------------- */
-  Pinouts = 
+  Pinouts =
     ColPins RowPins.
 
 /* ----------------------------------------------------------------------------- */
-  ColPins = 
-    "Cols:"               
+  ColPins =
+    "Cols:"
     ident                          (. kb->add_col_pin(t->val); .)
-    { ident                        (. kb->add_col_pin(t->val); .)
+    {
+      ident                        (. kb->add_col_pin(t->val); .)
     }.
 
 /* ----------------------------------------------------------------------------- */
-  RowPins = 
+  RowPins =
     "Rows:"
     ident                          (. kb->add_row_pin(t->val); .)
-    { ident                        (. kb->add_row_pin(t->val); .)
+    {
+      ident                        (. kb->add_row_pin(t->val); .)
     }.
 
 /* ----------------------------------------------------------------------------- */
-  Key<hh::KeyMap &map> = 
-    "Key:" ident                   (. hh::Key &key = map.add_key(t->val); 
+  Key<hh::KeyMap &map> =
+    "Key:" ident                   (. hh::Key &key = map.add_key(t->val);
                                       hh::Binding *binding = NULL; .)
     Binding<&binding>              (. key.add_binding(binding); .)
-    { Binding<&binding>            (. key.add_binding(binding); .)
+    {
+      Binding<&binding>            (. key.add_binding(binding); .)
     }.
 
 /* ----------------------------------------------------------------------------- */
@@ -92,70 +97,95 @@ PRODUCTIONS
     .
 
 /* ----------------------------------------------------------------------------- */
-  Map<hh::Binding **binding> =     (. hh::LabelLocation loc; std::wstring text; .)
-    "Map:" ident                   (. hh::Mods mods; 
-                                      hh::Map *map = new hh::Map(t->val); 
+  Map<hh::Binding **binding> =     (. hh::LabelLocation loc; std::wstring text;
+                                      std::wstring id;
+                                      std::wstring page = L"Keyboard_and_Keypad"; .)
+    "Map:" Unslashed<id>           (. hh::Mods mods;
+                                      hh::Map *map = new hh::Map(id);
                                       *binding = map; .)
-    { Mods<mods>                   (. map->set_mods(mods); .)
+    {
+      Mods<mods>                   (. map->set_mods(mods); .)
     }
-    ["page:" ident]                (. map->set_page(t->val); .)
-    { label<loc, text>             (. map->add_label(loc, text); .)
-    }
+    [
+      "page:" ident                (. page = t->val; map->set_page(page); .)
+    ]
+    {
+      label<loc, text>             (. map->add_label(loc, text); .)
+    }                              (. const hh::Usage &usage = hh::Usage::lookup(id, page); .)
     .
 
 /* ----------------------------------------------------------------------------- */
   Macro<hh::Binding **binding> =   (. hh::LabelLocation loc; std::wstring text; .)
-    "Macro:"                       (. hh::Binding *map = NULL; 
+    "Macro:"                       (. hh::Binding *map = NULL;
                                       hh::Macro *macro = new hh::Macro();
                                       *binding = macro; .)
-    { label<loc, text>             (. macro->add_label(loc, text); .)
+    {
+      label<loc, text>             (. macro->add_label(loc, text); .)
     }
     Map<&map>                      (. macro->add_map(dynamic_cast<hh::Map*>(map)); .)
-    { Map<&map>                    (. macro->add_map(dynamic_cast<hh::Map*>(map)); .) 
+    {
+      Map<&map>                    (. macro->add_map(dynamic_cast<hh::Map*>(map)); .)
     }.
 
 /* ----------------------------------------------------------------------------- */
   Mode<hh::Binding **binding> =    (. hh::LabelLocation loc; std::wstring text; .)
-    "Mode:" ident                  (. hh::Mode *mode = new hh::Mode(t->val); 
+    "Mode:" ident                  (. hh::Mode *mode = new hh::Mode(t->val);
                                       *binding = mode; .)
-    { "led:" ident
-    } 
-    "type:" ("toggle" | "momentary") 
-    { label<loc, text>             (. mode->add_label(loc, text); .)
+    {
+      "led:" ident
+    }
+    "type:" ("toggle" | "momentary")
+    {
+      label<loc, text>             (. mode->add_label(loc, text); .)
     }
     .
 
 /* ----------------------------------------------------------------------------- */
-  label<hh::LabelLocation &loc, std::wstring &text> = 
-    ( "tl"                         (. loc = hh::top_left; .) 
-    | "tc"                         (. loc = hh::top_center; .) 
-    | "tr"                         (. loc = hh::top_right; .) 
-    | "l"                          (. loc = hh::center_left; .) 
-    | "c"                          (. loc = hh::center; .) 
-    | "r"                          (. loc = hh::center_right; .) 
-    | "bl"                         (. loc = hh::bottom_left; .) 
-    | "bc"                         (. loc = hh::bottom_left; .) 
-    | "br")                        (. loc = hh::bottom_left; .) 
-    ":" 
+  label<hh::LabelLocation &loc, std::wstring &text> =
+    ( "tl"                         (. loc = hh::top_left; .)
+    | "tc"                         (. loc = hh::top_center; .)
+    | "tr"                         (. loc = hh::top_right; .)
+    | "l"                          (. loc = hh::center_left; .)
+    | "c"                          (. loc = hh::center; .)
+    | "r"                          (. loc = hh::center_right; .)
+    | "bl"                         (. loc = hh::bottom_left; .)
+    | "bc"                         (. loc = hh::bottom_left; .)
+    | "br")                        (. loc = hh::bottom_left; .)
+    ":"
     string                         (. text = t->val; .)
     .
 
 /* ----------------------------------------------------------------------------- */
-  modifier = 
-    ( "left_shift"  | "left_alt"  | "left_control"  | "left_gui" 
-    | "right_shift" | "right_alt" | "right_control" | "right_gui" 
-    | "shift"       | "alt"       | "control"       | "gui" )
+  modifier<hh::Modifier &mod> =
+    ( "left_shift"                 (. mod = hh::left_shift;   .)
+    | "left_alt"                   (. mod = hh::left_alt;     .)
+    | "left_control"               (. mod = hh::left_control; .)
+    | "left_gui"                   (. mod = hh::left_gui;     .)
+    | "right_shift"                (. mod = hh::right_shift;  .)
+    | "right_alt"                  (. mod = hh::right_alt;    .)
+    | "right_control"              (. mod = hh::right_control;.)
+    | "right_gui"                  (. mod = hh::right_gui;    .)
+    | "shift"                      (. mod = hh::shift;        .)
+    | "alt"                        (. mod = hh::alt;          .)
+    | "control"                    (. mod = hh::control;      .)
+    | "gui" )                      (. mod = hh::gui;          .)
     .
 
 /* ----------------------------------------------------------------------------- */
-  Mods<hh::Mods& mods> = 
-    "<" 
-    modifier 
-    { "|" modifier 
-    } 
+  Mods<hh::Mods& mods> =           (. hh::Modifier mod; .)
+    "<"
+    modifier<mod>                  (. mods.push_back(mod); .)
+    {
+      "|" modifier<mod>            (. mods.push_back(mod); .)
+    }
     ">".
 
 /* ----------------------------------------------------------------------------- */
+  Unslashed<std::wstring &value> =
+    ident                          (. value = unslash(t->val); .)
+    .
 
-END kspec. 
+/* ----------------------------------------------------------------------------- */
+
+END kspec.
 

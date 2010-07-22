@@ -9,6 +9,7 @@ if int(debug):
 sourcefiles = ['Parser.cpp', 
                'Scanner.cpp', 
                'keyboard.cc',
+               'hid_usages.cc',
                'utils.cc',
                'options.cc', 
                'main.cc']
