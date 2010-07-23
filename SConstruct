@@ -1,7 +1,7 @@
 import os
 
 env = Environment()
-debug = ARGUMENTS.get('debug', 0)
+debug = ARGUMENTS.get('debug', 1)
 if int(debug):
     env.Append(CCFLAGS = '-g')
     env.Append(LINKFLAGS = '-g')
