@@ -13,3 +13,4 @@ kspec_scanner.c
 # build products
 *.o
 kspec
+.DS_Store

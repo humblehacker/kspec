@@ -20,7 +20,7 @@ CHARACTERS
   printable =  '\u0020' .. '\u007e'.
 
 TOKENS
-  ident   = (id_ch | "\\" esc_ch) {id_ch | "\\" esc_ch}.
+  ident     = (id_ch | "\\" esc_ch) {id_ch | "\\" esc_ch}.
   string    = '"' { stringCh | '\\' printable } '"'.
   badString = '"' { stringCh | '\\' printable } (cr | lf).
 
@@ -42,7 +42,7 @@ PRODUCTIONS
 
 /* ----------------------------------------------------------------------------- */
   Matrix =
-    "Matrix:" Row { Row } Pinouts.
+    "Matrix:" Row { Row } Pinouts [BlockGhostKeys].
 
 /* ----------------------------------------------------------------------------- */
   KeyMap =
@@ -67,7 +67,7 @@ PRODUCTIONS
 
 /* ----------------------------------------------------------------------------- */
   ColPins =
-    "Cols:"
+    "ColPins:"
     ident                          (. kb->add_col_pin(t->val); .)
     {
       ident                        (. kb->add_col_pin(t->val); .)
@@ -75,11 +75,23 @@ PRODUCTIONS
 
 /* ----------------------------------------------------------------------------- */
   RowPins =
-    "Rows:"
+    "RowPins:"
     ident                          (. kb->add_row_pin(t->val); .)
     {
       ident                        (. kb->add_row_pin(t->val); .)
     }.
+
+/* ----------------------------------------------------------------------------- */
+  BlockGhostKeys =                 (. bool block = false; .)
+    "BlockGhostKeys:"
+    Boolean<block>                 (. kb->set_block_ghost_keys(block); .)
+    .
+
+/* ----------------------------------------------------------------------------- */
+  Boolean<bool &val> =
+    (( "true" | "yes" )            (. val = true;  .)
+    |( "false" | "no" )            (. val = false; .)
+    ).
 
 /* ----------------------------------------------------------------------------- */
   Key<hh::KeyMap &map> =
@@ -100,7 +112,7 @@ PRODUCTIONS
     .
 
 /* ----------------------------------------------------------------------------- */
-  Map<hh::Binding **binding> =     (. hh::LabelLocation loc; 
+  Map<hh::Binding **binding> =     (. hh::LabelLocation loc;
                                       std::wstring label;
                                       std::wstring id;
                                       std::wstring page = L"Keyboard_and_Keypad"; .)
@@ -113,7 +125,7 @@ PRODUCTIONS
                                       *binding = map; .)
     {
       Label<loc, label>            (. map->add_label(loc, label); .)
-    }                              
+    }
     .
 
 /* ----------------------------------------------------------------------------- */

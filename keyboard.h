@@ -48,19 +48,19 @@ class KeyMap
 public:
   KeyMap(const wstring &name = L"") : _name(name), _default(false) {}
   void set_base(const wstring &base)     { _base = base; }
-  void make_default()                         { _default = true; }
+  void make_default()                    { _default = true; }
 
   const wstring & name() const           { return _name; }
   const wstring & base() const           { return _base; }
-  bool default_map() const                    { return _default; }
-  const Keys & keys() const                   { return _keys; }
+  bool default_map() const               { return _default; }
+  const Keys & keys() const              { return _keys; }
 
   Key & add_key(const wstring &location) { return _keys[location] = Key(location); }
 
 private:
   wstring _name, _base;
-  bool         _default;
-  Keys         _keys;
+  bool    _default;
+  Keys    _keys;
 };
 
 /*    K E Y B O A R D    */
@@ -70,23 +70,26 @@ class Keyboard
 public:
   Keyboard(const wstring &ident);
 
-  void set_ident(const wstring &ident) { _ident = ident; }
-  void add_col_pin(const wstring &pin) { _cpins.push_back(pin); }
-  void add_row_pin(const wstring &pin) { _rpins.push_back(pin); }
-  void add_matrix_row(MatrixRowPtr row)     { _matrix.push_back(row); }
-  void add_keymap(KeyMapPtr map)            { _maps[map->name()] = map; }
+  void set_ident(const wstring &ident)   { _ident = ident; }
+  void add_col_pin(const wstring &pin)   { _cpins.push_back(pin); }
+  void add_row_pin(const wstring &pin)   { _rpins.push_back(pin); }
+  void add_matrix_row(MatrixRowPtr row)  { _matrix.push_back(row); }
+  void add_keymap(KeyMapPtr map)         { _maps[map->name()] = map; }
+  void set_block_ghost_keys(bool block)  { _block_ghost_keys = block; }
 
-  const wstring &ident() const         { return _ident; }
-  const Matrix &matrix() const              { return _matrix; }
-  const IOPins &cpins() const               { return _cpins; }
-  const IOPins &rpins() const               { return _rpins; }
-  const KeyMaps &maps() const               { return _maps; }
+  const wstring &ident() const           { return _ident; }
+  const Matrix &matrix() const           { return _matrix; }
+  const IOPins &cpins() const            { return _cpins; }
+  const IOPins &rpins() const            { return _rpins; }
+  const KeyMaps &maps() const            { return _maps; }
+  bool  block_ghost_keys() const         { return _block_ghost_keys; }
 
 private:
   wstring _ident;
-  Matrix       _matrix;
-  IOPins       _cpins, _rpins;
-  KeyMaps      _maps;
+  Matrix  _matrix;
+  IOPins  _cpins, _rpins;
+  KeyMaps _maps;
+  bool    _block_ghost_keys;
 };
 
 }; // namespace hh

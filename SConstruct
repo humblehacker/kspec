@@ -17,7 +17,7 @@ sourcefiles = ['Parser.cpp',
 env.Program(target = 'kspec', 
             source = sourcefiles,
             ENV    = {'PATH' : os.environ['PATH']},
-            LIBS   = [''])
+            LIBS   = ['lua'])
 
 env.Command(target = ['Parser.cpp', 'Parser.h', 'Scanner.cpp', 'Scanner.h'],
             source = 'kspec.atg',
