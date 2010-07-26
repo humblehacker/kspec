@@ -10,6 +10,10 @@ sourcefiles = ['Parser.cpp',
                'Scanner.cpp', 
                'keyboard.cc',
                'hid_usages.cc',
+               'lua_helpers.cc',
+               'keyboard_visitor.cc',
+               'lua_keyboard_visitor.cc',
+               'binding.cc',
                'utils.cc',
                'options.cc', 
                'main.cc']
@@ -17,7 +21,7 @@ sourcefiles = ['Parser.cpp',
 env.Program(target = 'kspec', 
             source = sourcefiles,
             ENV    = {'PATH' : os.environ['PATH']},
-            LIBS   = ['lua'])
+            LIBS   = ['lua', 'boost_system-mt', 'boost_filesystem-mt'])
 
 env.Command(target = ['Parser.cpp', 'Parser.h', 'Scanner.cpp', 'Scanner.h'],
             source = 'kspec.atg',

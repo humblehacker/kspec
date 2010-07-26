@@ -1,7 +1,14 @@
-#include <string>
+#ifndef __UTILS_H__
+#define __UTILS_H__
 
-const std::string &wstring_to_string(const std::wstring &src);
-const std::string &wstring_to_string(const wchar_t *src);
+#include <string>
+#include "boost/foreach.hpp"
+#if !defined(foreach)
+#define foreach BOOST_FOREACH
+#endif
+
+const std::string wstring_to_string(const std::wstring &src);
+const std::string wstring_to_string(const wchar_t *src);
 std::wstring unslash(const std::wstring &input);
 
 template <typename S>
@@ -27,3 +34,8 @@ slash(const S &what)
   return result;
 }
 
+//template <typename StringT>
+
+
+
+#endif // __UTILS_H__

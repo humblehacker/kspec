@@ -3,16 +3,16 @@
 using std::string;
 using std::wstring;
 
-const string &
+const string
 wstring_to_string(const wstring &src)
 {
-  static string dst;
+  string dst;
   dst.resize(src.length(), ' ');
   std::copy(src.begin(), src.end(), dst.begin());
   return dst;
 }
 
-const string &
+const string
 wstring_to_string(const wchar_t *src)
 {
   const wstring temp(src);

@@ -1,10 +1,10 @@
 
-#define NUM_ROWS <%= matrix.row_count %>
-#define NUM_COLS <%= matrix.col_count %>
+#define NUM_ROWS <%= kb.matrix.row_count %>
+#define NUM_COLS <%= kb.matrix.col_count %>
 
 typedef uint8_t Cell;
 
-<% if block_ghost_keys then %>
+<% if kb.block_ghost_keys then %>
 #define BLOCK_GHOST_KEYS
 <% end %>
 
@@ -13,28 +13,28 @@ void
 activate_row(uint8_t row)
 {
   // set all row pins as inputs
-<% for i,port in ipairs(row_ports) do %>
-  DDR<%= string.sub(port,1,1) %> &= ~(1 << <%= port %>);
+<% for i,pin in ipairs(kb.row_pins) do %>
+  DDR<%= string.sub(pin,1,1) %> &= ~(1 << <%= pin %>);
 <% end %>
 
   // set current row pin as output
   switch (row)
   {
-<% for i,port in ipairs(row_ports) do %>
-    case <%= i %>: DDR<%= string.sub(row_ports[i],1,1) %> |= (1 << <%= port %>); break;
+<% for i,pin in ipairs(kb.row_pins) do %>
+    case <%= i %>: DDR<%= string.sub(pin,1,1) %> |= (1 << <%= pin %>); break;
 <% end %>
   }
 
   // drive all row pins high
-<% for i,port in ipairs(row_ports) do %>
-  PORT<%= string.sub(port,1,1) %> |= (1 << <%= port %>);
+<% for i,pin in ipairs(kb.row_pins) do %>
+  PORT<%= string.sub(pin,1,1) %> |= (1 << <%= pin %>);
 <% end %>
 
   // drive current row pin low
   switch (row)
   {
-<% for i,port in ipairs(row_ports) do %>
-    case <%= i %>: PORT<%= string.sub(port,1,1) %> &= ~(1 << <%= port %>); break;
+<% for i,pin in ipairs(kb.row_pins) do %>
+    case <%= i %>: PORT<%= string.sub(pin,1,1) %> &= ~(1 << <%= pin %>); break;
 <% end %>
   }
 }
@@ -45,8 +45,8 @@ read_row_data(void)
 {
   uint32_t cols = 0;
 
-<% for i,port in ipairs(col_ports) do %>
-  if ((~PIN<%= string.sub(port,1,1) %>)&(1<<<%= port %>)) cols |= (1UL<< <%= i %>);
+<% for i,pin in ipairs(kb.col_pins) do %>
+  if ((~PIN<%= string.sub(pin,1,1) %>)&(1<<<%= pin %>)) cols |= (1UL<< <%= i %>);
 <% end %>
 
   return cols;
@@ -58,13 +58,13 @@ void
 init_cols(void)
 {
   /* Columns are inputs */
-<% for i,port in ipairs(col_ports) do %>
-  DDR<%= string.sub(port,1,1) %> &= ~(1 << <%= port %>);
+<% for i,pin in ipairs(kb.col_pins) do %>
+  DDR<%= string.sub(pin,1,1) %> &= ~(1 << <%= pin %>);
 <% end %>
 
   /* Enable pull-up resistors on inputs */
-<% for i,port in ipairs(col_ports) do %>
-  PORT<%= string.sub(port,1,1) %> |= (1 << <%= port %>);
+<% for i,pin in ipairs(kb.col_pins) do %>
+  PORT<%= string.sub(pin,1,1) %> |= (1 << <%= pin %>);
 <% end %>
 }
 

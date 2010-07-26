@@ -1,5 +1,4 @@
-/*
-                    The HumbleHacker Keyboard Project
+/*                    The HumbleHacker Keyboard Project
                  Copyright © 2008-2010, David Whetstone
                david DOT whetstone AT humblehacker DOT com
 
@@ -105,12 +104,13 @@ const MapTarget* MacroTarget__get_map_target(const MacroTarget *this, uint8_t in
  *    Binding declarations
  */
 
-<% $keyboard.maps.each_value do |keymap|
-     keymap.keys.each do |location, key| %>
-extern const KeyBinding <%= "#{keymap.ids.last}_#{key.location}" %>[] PROGMEM;<%
-     end
+<% for i,keymap in ipairs(kb.keymaps) do
+     print(keymap)
+     for location,key in pairs(keymap.keys) do %>
+extern const KeyBinding <%= keymap.name %>_<%= key.location %>[] PROGMEM;
+<%   end
    end
 %>
 
 
-#endif // __MAPPING_H__
+#endif // __BINDING_H__

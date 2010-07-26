@@ -5,7 +5,7 @@
 
 COMPILER kspec
 
-  hh::KeyboardPtr kb;
+  hh::Keyboard::Ptr kb;
 
 CHARACTERS
   letter  = 'A' .. 'Z' + 'a' .. 'z'.
@@ -46,7 +46,7 @@ PRODUCTIONS
 
 /* ----------------------------------------------------------------------------- */
   KeyMap =
-    "KeyMap:" ident                 (. hh::KeyMapPtr map(new hh::KeyMap(t->val)); .)
+    "KeyMap:" ident                 (. hh::KeyMap::Ptr map(new hh::KeyMap(t->val)); .)
     {"base:" ident}                 (. map->set_base(t->val); .)
     ["default"]                     (. map->make_default(); .)
     Key<*map> {Key<*map>}           (. kb->add_keymap(map); .)
@@ -96,23 +96,26 @@ PRODUCTIONS
 /* ----------------------------------------------------------------------------- */
   Key<hh::KeyMap &map> =
     "Key:" ident                   (. hh::Key &key = map.add_key(t->val);
-                                      hh::Binding *binding = NULL; .)
-    Binding<&binding>              (. key.add_binding(binding); .)
+                                      hh::Binding::Ptr binding; .)
+    Binding<binding>               (. key.add_binding(binding); .)
     {
-      Binding<&binding>            (. key.add_binding(binding); .)
+      Binding<binding>             (. key.add_binding(binding); .)
     }.
 
 /* ----------------------------------------------------------------------------- */
-  Binding<hh::Binding **binding> = (. hh::Mods premods; .)
+  Binding<hh::Binding::Ptr &binding> = (. hh::Mods premods; .)
     [Mods<premods>]
-    ( Map<binding>
-    | Macro<binding>
-    | Mode<binding>
-    )                              (. (*binding)->set_premods(premods); .)
+    (                              (. hh::Map::Ptr map; .)
+      Map<map>                     (. binding = map; .)
+    |                              (. hh::Macro::Ptr macro; .)
+      Macro<macro>                 (. binding = macro; .)
+    |                              (. hh::Mode::Ptr mode; .)
+      Mode<mode>                   (. binding = mode; .)
+    )                              (. binding->set_premods(premods); .)
     .
 
 /* ----------------------------------------------------------------------------- */
-  Map<hh::Binding **binding> =     (. hh::LabelLocation loc;
+  Map<hh::Map::Ptr &map> =         (. hh::Label::Location loc;
                                       std::wstring label;
                                       std::wstring id;
                                       std::wstring page = L"Keyboard_and_Keypad"; .)
@@ -121,30 +124,27 @@ PRODUCTIONS
     [
       "page:" ident                (. page = t->val; .)
     ]                              (. const hh::Usage &usage = hh::Usage::lookup(id, page);
-                                      hh::Map *map = new hh::Map(usage, mods);
-                                      *binding = map; .)
+                                      map.reset(new hh::Map(usage, mods)); .)
     {
       Label<loc, label>            (. map->add_label(loc, label); .)
     }
     .
 
 /* ----------------------------------------------------------------------------- */
-  Macro<hh::Binding **binding> =   (. hh::LabelLocation loc; std::wstring text; .)
-    "Macro:"                       (. hh::Binding *map = NULL;
-                                      hh::Macro *macro = new hh::Macro();
-                                      *binding = macro; .)
+  Macro<hh::Macro::Ptr &macro> =   (. hh::Label::Location loc; std::wstring text; .)
+    "Macro:"                       (. hh::Map::Ptr map;
+                                      macro.reset(new hh::Macro()); .)
     {
       Label<loc, text>             (. macro->add_label(loc, text); .)
     }
-    Map<&map>                      (. macro->add_map(dynamic_cast<hh::Map*>(map)); .)
+    Map<map>                       (. macro->add_map(map); .)
     {
-      Map<&map>                    (. macro->add_map(dynamic_cast<hh::Map*>(map)); .)
+      Map<map>                     (. macro->add_map(map); .)
     }.
 
 /* ----------------------------------------------------------------------------- */
-  Mode<hh::Binding **binding> =    (. hh::LabelLocation loc; std::wstring text; .)
-    "Mode:" ident                  (. hh::Mode *mode = new hh::Mode(t->val);
-                                      *binding = mode; .)
+  Mode<hh::Mode::Ptr &mode> =      (. hh::Label::Location loc; std::wstring text; .)
+    "Mode:" ident                  (. mode.reset(new hh::Mode(t->val)); .)
     {
       "led:" ident
     }
@@ -155,16 +155,16 @@ PRODUCTIONS
     .
 
 /* ----------------------------------------------------------------------------- */
-  Label<hh::LabelLocation &loc, std::wstring &text> =
-    ( "tl"                         (. loc = hh::top_left; .)
-    | "tc"                         (. loc = hh::top_center; .)
-    | "tr"                         (. loc = hh::top_right; .)
-    | "l"                          (. loc = hh::center_left; .)
-    | "c"                          (. loc = hh::center; .)
-    | "r"                          (. loc = hh::center_right; .)
-    | "bl"                         (. loc = hh::bottom_left; .)
-    | "bc"                         (. loc = hh::bottom_left; .)
-    | "br")                        (. loc = hh::bottom_left; .)
+  Label<hh::Label::Location &loc, std::wstring &text> =
+    ( "tl"                         (. loc = hh::Label::top_left; .)
+    | "tc"                         (. loc = hh::Label::top_center; .)
+    | "tr"                         (. loc = hh::Label::top_right; .)
+    | "l"                          (. loc = hh::Label::center_left; .)
+    | "c"                          (. loc = hh::Label::center; .)
+    | "r"                          (. loc = hh::Label::center_right; .)
+    | "bl"                         (. loc = hh::Label::bottom_left; .)
+    | "bc"                         (. loc = hh::Label::bottom_left; .)
+    | "br")                        (. loc = hh::Label::bottom_left; .)
     ":"
     string                         (. text = t->val; .)
     .

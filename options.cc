@@ -17,18 +17,21 @@ static struct option long_options[] =
 };
 
 Options::
-Options(int argc, char *argv[])
+Options(int argc, char *argv[]) : _interactive(false)
 {
   int option_index = 0;
 
   int ch;
-  while ((ch = getopt_long(argc, argv, ":phv", long_options, &option_index)) != -1)
+  while ((ch = getopt_long(argc, argv, ":phiv", long_options, &option_index)) != -1)
   {
     switch (ch)
     {
       case 'p':
         cout << "PDF generation not yet implemented" << endl;
         exit(1);
+      case 'i':
+        _interactive = true;
+        break;
       case 'h':
         usage();
         exit(0);

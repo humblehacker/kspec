@@ -16,11 +16,13 @@ public:
   Options(int argc, char *argv[]);
 
   const std::string & filename() const { return _filename; }
+  bool interactive() const { return _interactive; }
   static void usage();
   static void version();
 
 private:
   std::string _filename;
+  bool        _interactive;
 };
 
 #endif // __OPTIONS_H__
