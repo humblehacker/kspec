@@ -6,33 +6,6 @@
 using std::cout;
 using std::endl;
 
-void
-new_array(lua_State *L)
-{
-  lua_newtable(L);
-  set_field(L, "_last", 0);
-}
-
-void array_append(lua_State *L)
-{
-  assert(lua_istable(L, -2));
-
-  // get the next index
-  lua_getfield(L, -2, "_last");
-  int index = lua_tonumber(L, -1) + 1;
-  cout << index << endl;
-
-  // append the new value
-  lua_insert(L, -2);
-  assert(lua_isnumber(L, -2));
-  assert(lua_istable(L, -3));
-  lua_settable(L, -3);
-
-  // update the last index
-  lua_pushnumber(L, index);
-  lua_setfield(L, -2, "_last");
-}
-
 void set_field(lua_State *L, const std::string &key, bool value)
 {
   assert(lua_istable(L, -1));

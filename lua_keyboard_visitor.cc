@@ -33,12 +33,14 @@ visit(const hh::Keyboard &kb)
   set_array(_L, "col_pins", kb.col_pins());
 
   // kb.maps = { keymap1, keymap2, ... }
-  new_array(_L);
+  int array_index = 1;
+  lua_newtable(_L);
   foreach(const KeyMaps::value_type &keymap, kb.maps())
   {
+    lua_pushnumber(_L, array_index++);
     lua_newtable(_L);
     keymap.second->accept(*this);
-    array_append(_L);
+    lua_settable(_L, -3);
   }
   lua_setfield(_L, -2, "keymaps");
 }
