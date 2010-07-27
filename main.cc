@@ -1,11 +1,13 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <cstdio>
 #include <iterator>
 #include <cassert>
 #include <string>
-#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include "Options.h"
 #include "Scanner.h"
 #include "Parser.h"
@@ -39,8 +41,23 @@ main (int argc, char *argv[])
 
     fs::path output_dir("generated");
     fs::create_directories(output_dir);
+
+    int error = luaL_loadfile(L, "templates/shared.lua");
+    if (error)
+    {
+      cerr << lua_tostring(L, -1) << endl;
+      lua_pop(L, 1);
+    }
+    error = lua_pcall(L, 0, 0, 0);
+    if (error)
+    {
+      cerr << lua_tostring(L, -1) << endl;
+      lua_pop(L, 1);
+    }
+
     generate(output_dir / "matrix.h", L);
     generate(output_dir / "binding.h", L);
+    generate(output_dir / "binding.c", L);
 
     if (options.interactive())
       go_interactive(L);
@@ -150,9 +167,9 @@ generate(const fs::path &output_filename, lua_State *L)
         found_pos = line.find("<%", prev_pos);
         if (found_pos != 0)
         {
-          out << "outfile:write('"
-              << line.substr(prev_pos, found_pos==string::npos?found_pos:found_pos-prev_pos)
-              << "'); ";
+          std::string piece(line.substr(prev_pos, found_pos==string::npos?found_pos:found_pos-prev_pos));
+          boost::replace_all(piece, "'", "\\'");
+          out << "outfile:write('" << piece << "'); ";
         }
         if (found_pos != string::npos)
         {
@@ -186,12 +203,19 @@ generate(const fs::path &output_filename, lua_State *L)
       prev_pos = found_pos;
     }
     if (state == ROOT && out_newline)
-      out << "outfile:write('\\n')";
+      out << "outfile:write('\\n');";
     out << endl;
   }
   out << "outfile:close(); " << endl;;
 
-  cout << out.str();
+//{
+//  int linenum = 0;
+//  while (getline(out, line))
+//  {
+//    cout << setw(4) << linenum++ << "| " << line << endl;
+//
+//  }
+//}
 
   // Compile and execute the Lua script
   int error = luaL_loadstring(L, out.str().c_str());
@@ -201,7 +225,12 @@ generate(const fs::path &output_filename, lua_State *L)
     lua_pop(L, 1);
   }
 
-  lua_pcall(L, 0, 0, 0);
+  error = lua_pcall(L, 0, 0, 0);
+  if (error)
+  {
+    cerr << lua_tostring(L, -1) << endl;
+    lua_pop(L, 1);
+  }
 }
 
 void

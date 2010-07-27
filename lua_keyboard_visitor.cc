@@ -77,6 +77,7 @@ void
 LuaKeyboardVisitor::
 visit(const hh::Key & key)
 {
+  int ss = lua_stackuse(_L);
   assert(lua_istable(_L, -1));
 //wcout << "Key: " << key.location() << endl;
 
@@ -91,9 +92,16 @@ visit(const hh::Key & key)
 
   // key.bindings = { binding1, binding2, ... }
   lua_newtable(_L);
+  int array_index = 1;
   foreach(const Binding::Ptr &binding, key.bindings())
+  {
+    lua_pushnumber(_L, array_index++);
+    lua_newtable(_L);
     binding->accept(*this);
+    lua_settable(_L, -3);
+  }
   lua_setfield(_L, -2, "bindings");
+  assert(ss == lua_stackuse(_L));
 }
 
 void
@@ -101,9 +109,19 @@ LuaKeyboardVisitor::
 visit(const hh::Map & map)
 {
   assert(lua_istable(_L, -1));
+//wcout << "Map: " << endl;
 
-  lua_pushlightuserdata(_L, const_cast<void*>(static_cast<const void*>(&map.usage())));
+  set_field(_L, "class", "Map");
+  set_field(_L, "premods", "XXXXXX");
+
+  lua_newtable(_L);
+  set_field(_L, "name", map.usage().key);
   lua_setfield(_L, -2, "usage");
+
+  set_field(_L, "modifiers", "zzzzz");
+
+//lua_pushlightuserdata(_L, const_cast<void*>(static_cast<const void*>(&map.usage())));
+//lua_setfield(_L, -2, "usage");
 }
 
 void
@@ -111,6 +129,22 @@ LuaKeyboardVisitor::
 visit(const hh::Macro & macro)
 {
   assert(lua_istable(_L, -1));
+//wcout << "Macro: " << endl;
+
+  set_field(_L, "class", "Macro");
+  set_field(_L, "premods", "XXXXXX");
+
+  // macro.maps = { map1, map2, ... }
+  lua_newtable(_L);
+  int array_index = 1;
+  foreach(const Map::Ptr &map, macro.maps())
+  {
+    lua_pushnumber(_L, array_index++);
+    lua_newtable(_L);
+    map->accept(*this);
+    lua_settable(_L, -3);
+  }
+  lua_setfield(_L, -2, "maps");
 }
 
 void
@@ -118,6 +152,11 @@ LuaKeyboardVisitor::
 visit(const hh::Mode & mode)
 {
   assert(lua_istable(_L, -1));
+//wcout << "Mode: " << endl;
+
+  set_field(_L, "class", "Mode");
+  set_field(_L, "premods", "XXXXXX");
+  set_field(_L, "name", mode.name());
 }
 
 void

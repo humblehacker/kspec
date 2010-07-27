@@ -95,6 +95,8 @@ private:
   std::wstring _page;
 };
 
+typedef std::vector<Map::Ptr> Maps;
+
 class Macro : public Binding
 {
 public:
@@ -103,12 +105,12 @@ public:
   typedef boost::shared_ptr<Macro> Ptr;
 
   void add_map(Map::Ptr map) { _maps.push_back(map); }
+  const Maps &maps() const { return _maps; }
 
   void accept(KeyboardVisitor &visitor) const;
   void accept(KeyboardExternalVisitor &visitor) const;
 
 private:
-  typedef std::vector<Map::Ptr> Maps;
   Maps  _maps;
 };
 
@@ -119,6 +121,8 @@ public:
   virtual ~Mode();
 
   typedef boost::shared_ptr<Mode> Ptr;
+
+  const std::wstring &name() const { return _name; }
 
   void accept(KeyboardVisitor &visitor) const;
   void accept(KeyboardExternalVisitor &visitor) const;
