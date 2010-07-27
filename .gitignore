@@ -7,10 +7,15 @@
 .sconsign*
 
 # generated files
-kspec_parser.c
-kspec_scanner.c
+Parser.cpp
+Parser.h
+Scanner.cpp
+Scanner.h
 
 # build products
 *.o
 kspec
+generated
+
+# misc
 .DS_Store
