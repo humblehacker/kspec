@@ -104,7 +104,7 @@ const MapTarget* MacroTarget__get_map_target(const MacroTarget *this, uint8_t in
  *    Binding declarations
  */
 
-<% for i,keymap in ipairs(kb.keymaps) do
+<% for mapname,keymap in pairs(kb.keymaps) do
      for location,key in pairs(keymap.keys) do %>
 extern const KeyBinding <%= keymap.name %>_<%= key.location %>[] PROGMEM;
 <%   end

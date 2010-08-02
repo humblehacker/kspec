@@ -24,8 +24,13 @@
 #ifndef __KEYMAPS_H__
 #define __KEYMAPS_H__
 
-<% $keymapIDs.each do |name, id| %>
-#include "<%=id%>_mx.h"
+#include "matrix.h"
+#include "binding.h"
+#include <avr/pgmspace.h>
+
+<% for i,keymap in ipairs(kb.keymaps) do %>
+extern const KeyBindingArray keymap_<%=keymap.name%>[] PROGMEM;
 <% end %>
+extern const KeyMap          default_keymap PROGMEM;
 
 #endif // __KEYMAPS_H__

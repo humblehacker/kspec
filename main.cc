@@ -8,7 +8,7 @@
 #include <string>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include "Options.h"
+#include <boost/program_options.hpp>
 #include "Scanner.h"
 #include "Parser.h"
 #include "lua_helpers.h"
@@ -16,64 +16,54 @@
 
 using namespace std;
 namespace fs = boost::filesystem;
+namespace po = boost::program_options;
 
-hh::Keyboard::Ptr parse(const Options &options);
+hh::Keyboard::Ptr parse(const wstring &input_filename);
 void dump(hh::Keyboard &kb);
 void build_lua_environment(const hh::Keyboard &kb, lua_State *L);
-void generate(const fs::path &filename, lua_State *L);
+void generate(const fs::path &filename, lua_State *L, const po::variables_map &options);
 void go_interactive(lua_State *L);
+bool process_options(int argc, char *argv[], po::options_description &usage,
+                     po::variables_map &options);
+void generate_code(po::variables_map &options, hh::Keyboard::Ptr &kb);
 
 int
 main (int argc, char *argv[])
 {
+  po::options_description usage("kspec [options] input-file");
+  po::variables_map options;
   try
   {
+    if (!process_options(argc, argv, usage, options))
+      return 0;
+
+    wstring input_filename;
+    string_to_wstring(options["input-file"].as<string>(), input_filename);
+
     hh::Keyboard::Ptr kb;
-    Options options(argc, argv);
-    kb = parse(options);
-    assert(kb);
-//  dump(*kb);
+    kb = parse(input_filename);
 
-    lua_State *L = luaL_newstate();
-    luaL_openlibs(L);
-
-    build_lua_environment(*kb, L);
-
-    fs::path output_dir("generated");
-    fs::create_directories(output_dir);
-
-    int error = luaL_loadfile(L, "templates/shared.lua");
-    if (error)
+    if (options.count("generate-code"))
     {
-      cerr << lua_tostring(L, -1) << endl;
-      lua_pop(L, 1);
+      generate_code(options, kb);
     }
-    error = lua_pcall(L, 0, 0, 0);
-    if (error)
+    else if (options.count("pdf") || options.count("png") || options.count("svg")
+             || options.count("program") || options.count("extract"))
     {
-      cerr << lua_tostring(L, -1) << endl;
-      lua_pop(L, 1);
+      cerr << "Option not yet implemented" << endl;
     }
 
-    generate(output_dir / "matrix.h", L);
-    generate(output_dir / "binding.h", L);
-    generate(output_dir / "binding.c", L);
-
-    if (options.interactive())
-      go_interactive(L);
-
-    lua_close(L);
   }
-  catch ( const option_error &e )
+  catch ( const po::error &e )
   {
     cerr << "Option Error: " << e.what() << endl;
-    Options::usage();
+    cout << usage << endl;
     return 1;
   }
   catch(exception &e)
   {
     cerr << e.what() << endl;
-    Options::usage();
+    cout << usage << endl;
     return 1;
   }
   catch(...)
@@ -84,7 +74,99 @@ main (int argc, char *argv[])
   return 0;
 }
 
-void dump(hh::Keyboard &kb)
+bool
+process_options(int argc, char *argv[],
+                po::options_description &usage,
+                po::variables_map &options)
+{
+  po::options_description gen_desc("General options");
+  gen_desc.add_options()
+    ("version,v",        "display the version number")
+    ("help,h",           "produce this help text")
+  ;
+  po::options_description cg_desc("Code generation options");
+  cg_desc.add_options()
+    ("generate-code,g",  "generate code for keyboard firmware")
+    ("output-dir,o",   po::value<string>()->default_value("./generated"),
+     "destination for generated code files")
+    ("template-dir,t", po::value<string>()->default_value("./templates"),
+     "location of code-generation template files")
+  ;
+  po::options_description dl_desc("Layout display options");
+  dl_desc.add_options()
+    ("pdf", "produce keyboard images in PDF format")
+    ("svg", "produce keyboard images in SVG format")
+    ("png", "produce keyboard images in PNG format")
+  ;
+  po::options_description pg_desc("Programming options");
+  pg_desc.add_options()
+    ("program", "send keymaps to keyboard")
+    ("extract", "read keymaps from keyboard")
+  ;
+
+  po::options_description invisible("Invisible options");
+  invisible.add_options()("input-file", po::value<string>(), "kspec input file");
+
+  po::positional_options_description pos_desc;
+  pos_desc.add("input-file", 1);
+
+  po::options_description all_desc("");
+  all_desc.add(gen_desc).add(cg_desc).add(dl_desc).add(pg_desc).add(invisible);
+
+  usage.add(gen_desc).add(cg_desc).add(dl_desc).add(pg_desc);
+
+  po::command_line_parser parser(argc, argv);
+  po::store(parser.options(all_desc).positional(pos_desc).run(), options);
+  po::notify(options);
+
+  if (options.count("help"))
+  {
+    cout << usage;
+    return false;
+  }
+
+  return true;
+}
+
+void
+generate_code(po::variables_map &options, hh::Keyboard::Ptr &kb)
+{
+  lua_State *L = luaL_newstate();
+  luaL_openlibs(L);
+
+  build_lua_environment(*kb, L);
+
+  fs::path output_dir(options["output-dir"].as<string>());
+  fs::path template_dir(options["template-dir"].as<string>());
+  fs::create_directories(output_dir);
+
+  int error = luaL_loadfile(L, (template_dir / "shared.lua").string().c_str());
+  if (error)
+  {
+    cerr << lua_tostring(L, -1) << endl;
+    lua_pop(L, 1);
+  }
+  error = lua_pcall(L, 0, 0, 0);
+  if (error)
+  {
+    cerr << lua_tostring(L, -1) << endl;
+    lua_pop(L, 1);
+  }
+
+  generate(output_dir / "matrix.h",  L, options);
+  generate(output_dir / "binding.h", L, options);
+  generate(output_dir / "binding.c", L, options);
+  generate(output_dir / "keymaps.h", L, options);
+  generate(output_dir / "keymaps.c", L, options);
+
+  if (options.count("interactive"))
+    go_interactive(L);
+
+  lua_close(L);
+}
+
+void
+dump(hh::Keyboard &kb)
 {
   wcout << "Keyboard: " << kb.ident() << endl;
   wcout << "  Matrix: #rows: "  << kb.matrix().size() << endl;
@@ -120,13 +202,9 @@ go_interactive(lua_State *L)
 }
 
 hh::Keyboard::Ptr
-parse(const Options &options)
+parse(const wstring &input_filename)
 {
-  wstring filename(options.filename().length(), L' '); // Make room for characters
-
-  // Copy string to wstring.
-  copy(options.filename().begin(), options.filename().end(), filename.begin());
-  Scanner *scanner = new Scanner(filename.c_str());
+  Scanner *scanner = new Scanner(input_filename.c_str());
   Parser  *parser  = new Parser(scanner);
   parser->Parse();
   cerr << parser->errors->count << " errors detected" << endl;
@@ -135,10 +213,10 @@ parse(const Options &options)
 
 
 void
-generate(const fs::path &output_filename, lua_State *L)
+generate(const fs::path &output_filename, lua_State *L, const po::variables_map &options)
 {
   // build the template filename from the output filename, and open it
-  fs::path template_filename("templates");
+  fs::path template_filename(options["template-dir"].as<string>());
   template_filename /= output_filename.stem() + ".elu" + output_filename.extension();
   ifstream template_file(template_filename.string().c_str());
 
@@ -151,7 +229,7 @@ generate(const fs::path &output_filename, lua_State *L)
   } state = ROOT;
 
   stringstream out;
-  out << "outfile = io.open('" << output_filename << "', 'w')" << endl;
+  out << " outfile = io.open('" << output_filename << "', 'w'); " << endl;
   size_t prev_pos, found_pos;
   string line;
   bool out_newline;
@@ -169,7 +247,7 @@ generate(const fs::path &output_filename, lua_State *L)
         {
           std::string piece(line.substr(prev_pos, found_pos==string::npos?found_pos:found_pos-prev_pos));
           boost::replace_all(piece, "'", "\\'");
-          out << "outfile:write('" << piece << "'); ";
+          out << " outfile:write('" << piece << "'); ";
         }
         if (found_pos != string::npos)
         {
@@ -189,10 +267,10 @@ generate(const fs::path &output_filename, lua_State *L)
       case EMBEDDED_SUBSTITUTION:
         found_pos = line.find("%>", prev_pos);
         if (state == EMBEDDED_SUBSTITUTION)
-          out << "outfile:write(";
+          out << " outfile:write( ";
         out << line.substr(prev_pos, found_pos==string::npos?found_pos:found_pos-prev_pos);
         if (state == EMBEDDED_SUBSTITUTION)
-          out << "); ";
+          out << " ); ";
         if (found_pos != string::npos)
         {
           state = ROOT;
@@ -203,19 +281,20 @@ generate(const fs::path &output_filename, lua_State *L)
       prev_pos = found_pos;
     }
     if (state == ROOT && out_newline)
-      out << "outfile:write('\\n');";
+      out << " outfile:write('\\n'); ";
     out << endl;
   }
-  out << "outfile:close(); " << endl;;
+  out << " outfile:close(); " << endl;;
 
-//{
-//  int linenum = 0;
-//  while (getline(out, line))
-//  {
-//    cout << setw(4) << linenum++ << "| " << line << endl;
-//
-//  }
-//}
+  if (options.count("debug"))
+  {
+    int linenum = 1;
+    while (getline(out, line))
+    {
+      cout << setw(4) << dec << linenum++ << "| " << line << endl;
+
+    }
+  }
 
   // Compile and execute the Lua script
   int error = luaL_loadstring(L, out.str().c_str());

@@ -23,21 +23,30 @@ void set_field(lua_State *L, const std::string &key, int value)
 void set_field(lua_State *L, const std::string &key, const std::string &value)
 {
   assert(lua_istable(L, -1));
-  lua_pushstring(L, value.c_str());
+  if (value.empty())
+    lua_pushnil(L);
+  else
+    lua_pushstring(L, value.c_str());
   lua_setfield(L, -2, key.c_str());
 }
 
 void set_field(lua_State *L, const std::string &key, const char *value)
 {
   assert(lua_istable(L, -1));
-  lua_pushstring(L, value);
+  if (strlen(value) == 0)
+    lua_pushnil(L);
+  else
+    lua_pushstring(L, value);
   lua_setfield(L, -2, key.c_str());
 }
 
 void set_field(lua_State *L, const std::string &key, const std::wstring &value)
 {
   assert(lua_istable(L, -1));
-  lua_pushstring(L, wstring_to_string(value).c_str());
+  if (value.empty())
+    lua_pushnil(L);
+  else
+    lua_pushstring(L, wstring_to_string(value).c_str());
   lua_setfield(L, -2, key.c_str());
 }
 
@@ -61,7 +70,10 @@ void set_field(lua_State *L, int key, const std::string &value)
 {
   assert(lua_istable(L, -1));
   lua_pushnumber(L, key);
-  lua_pushstring(L, value.c_str());
+  if (value.empty())
+    lua_pushnil(L);
+  else
+    lua_pushstring(L, value.c_str());
   lua_settable(L, -3);
 }
 
@@ -69,7 +81,10 @@ void set_field(lua_State *L, int key, const char *value)
 {
   assert(lua_istable(L, -1));
   lua_pushnumber(L, key);
-  lua_pushstring(L, value);
+  if (strlen(value) == 0)
+    lua_pushnil(L);
+  else
+    lua_pushstring(L, value);
   lua_settable(L, -3);
 }
 
@@ -77,7 +92,10 @@ void set_field(lua_State *L, int key, const std::wstring &value)
 {
   assert(lua_istable(L, -1));
   lua_pushnumber(L, key);
-  lua_pushstring(L, wstring_to_string(value).c_str());
+  if (value.empty())
+    lua_pushnil(L);
+  else
+    lua_pushstring(L, wstring_to_string(value).c_str());
   lua_settable(L, -3);
 }
 

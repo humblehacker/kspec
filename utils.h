@@ -7,6 +7,7 @@
 #define foreach BOOST_FOREACH
 #endif
 
+void string_to_wstring(const std::string &src, std::wstring &dst);
 const std::string wstring_to_string(const std::wstring &src);
 const std::string wstring_to_string(const wchar_t *src);
 std::wstring unslash(const std::wstring &input);
@@ -33,9 +34,5 @@ slash(const S &what)
   }
   return result;
 }
-
-//template <typename StringT>
-
-
 
 #endif // __UTILS_H__

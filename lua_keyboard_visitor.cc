@@ -3,10 +3,12 @@
 #include "keyboard.h"
 
 #include <iostream>
+#include <iomanip>
 
 using std::wcout;
 using std::cout;
 using std::endl;
+using std::hex;
 
 namespace hh
 {
@@ -17,10 +19,30 @@ visit(const hh::Keyboard &kb)
 {
   assert(lua_istable(_L, -1));
 
-  // kb.matrix = { row_count = XX, col_count = XX }
+  // kb.name = ""
+  set_field(_L, "name", kb.ident());
+
+  // kb.matrix = { row_count = XX, col_count = XX,
+  //               rows = { { XX, XX, ... }, { XX, XX, XX, ... } } }
   lua_newtable(_L);
   set_field(_L, "row_count", (int)kb.matrix().size());
   set_field(_L, "col_count", (int)kb.matrix().front()->size());
+  lua_newtable(_L);
+  int row_index = 1, col_index;
+  foreach(const MatrixRowPtr &row, kb.matrix())
+  {
+    col_index = 1;
+    lua_pushnumber(_L, row_index++);
+    lua_newtable(_L);
+    foreach(const wstring &location, *row)
+    {
+      lua_pushnumber(_L, col_index++);
+      lua_pushstring(_L, wstring_to_string(location).c_str());
+      lua_settable(_L, -3);
+    }
+    lua_settable(_L, -3);
+  }
+  lua_setfield(_L, -2, "rows");
   lua_setfield(_L, -2, "matrix");
 
   // kb.block_ghost_keys = <boolean>
@@ -32,12 +54,11 @@ visit(const hh::Keyboard &kb)
   // kb.col_pins = { "XX", "XX", ... }
   set_array(_L, "col_pins", kb.col_pins());
 
-  // kb.maps = { keymap1, keymap2, ... }
-  int array_index = 1;
+  // kb.keymaps = { "name1" = keymap1, "name2" = keymap2, ... }
   lua_newtable(_L);
   foreach(const KeyMaps::value_type &keymap, kb.maps())
   {
-    lua_pushnumber(_L, array_index++);
+    lua_pushstring(_L, wstring_to_string(keymap.first).c_str());
     lua_newtable(_L);
     keymap.second->accept(*this);
     lua_settable(_L, -3);
@@ -61,7 +82,7 @@ visit(const hh::KeyMap & keymap)
   // keymap.is_default = <boolean>
   set_field(_L, "is_default", keymap.default_map());
 
-  // keymap.keys = { key1, key2, ... }
+  // keymap.keys = { "location2" = key1, "location2" = key2, ... }
   lua_newtable(_L);
   foreach(const Keys::value_type &key, keymap.keys())
   {
@@ -97,6 +118,14 @@ visit(const hh::Key & key)
   {
     lua_pushnumber(_L, array_index++);
     lua_newtable(_L);
+    // binding.premods.stdmods = low 8 bits
+    // binding.premods.anymods = high 4 bits
+    lua_newtable(_L);
+    int stdmods = binding->premods() & 0xFF;
+    int anymods = binding->premods() & 0xF00;
+    set_field(_L, "stdmods", stdmods);
+    set_field(_L, "anymods", (anymods>>4)|(anymods>>8));
+    lua_setfield(_L, -2, "premods");
     binding->accept(*this);
     lua_settable(_L, -3);
   }
@@ -111,14 +140,16 @@ visit(const hh::Map & map)
   assert(lua_istable(_L, -1));
 //wcout << "Map: " << endl;
 
+  // map.class = "Map"
   set_field(_L, "class", "Map");
-  set_field(_L, "premods", "XXXXXX");
 
+  // map.usage.name = ""
   lua_newtable(_L);
   set_field(_L, "name", map.usage().key);
   lua_setfield(_L, -2, "usage");
 
-  set_field(_L, "modifiers", "zzzzz");
+  // map.modifiers = <number>
+  set_field(_L, "modifiers", map.mods());
 
 //lua_pushlightuserdata(_L, const_cast<void*>(static_cast<const void*>(&map.usage())));
 //lua_setfield(_L, -2, "usage");
@@ -132,7 +163,6 @@ visit(const hh::Macro & macro)
 //wcout << "Macro: " << endl;
 
   set_field(_L, "class", "Macro");
-  set_field(_L, "premods", "XXXXXX");
 
   // macro.maps = { map1, map2, ... }
   lua_newtable(_L);
@@ -155,8 +185,11 @@ visit(const hh::Mode & mode)
 //wcout << "Mode: " << endl;
 
   set_field(_L, "class", "Mode");
-  set_field(_L, "premods", "XXXXXX");
   set_field(_L, "name", mode.name());
+  if (mode.type() == hh::Mode::momentary)
+    set_field(_L, "type", "MOMENTARY");
+  else if (mode.type() == hh::Mode::toggle)
+    set_field(_L, "type", "TOGGLE");
 }
 
 void

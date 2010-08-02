@@ -1,7 +1,19 @@
 #include "utils.h"
+#include <iostream>
+
+using std::cout;
+using std::cerr;
+using std::endl;
 
 using std::string;
 using std::wstring;
+
+void
+string_to_wstring(const string &src, wstring &dst)
+{
+  dst.resize(src.length(), L' ');
+  std::copy(src.begin(), src.end(), dst.begin());
+}
 
 const string
 wstring_to_string(const wstring &src)
