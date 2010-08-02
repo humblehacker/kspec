@@ -24,15 +24,52 @@
 #include "binding.h"
 
 /*
+ *   PreMods
+ */
+
+                          /* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
+static uint8_t bitcount[] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4};
+
+static inline
+uint8_t hi_nibble(uint8_t val)
+{
+  return (val & 0xF0) >> 4;
+}
+
+static inline
+uint8_t lo_nibble(uint8_t val)
+{
+  return val & 0x0F;
+}
+
+uint8_t
+PreMods__compare(const PreMods *this, uint8_t mods)
+{
+  uint8_t count = 0;
+  uint8_t lo_mods = lo_nibble(mods);
+  uint8_t hi_mods = hi_nibble(mods);
+  uint8_t lo_std  = lo_nibble(this->std);
+  uint8_t hi_std  = hi_nibble(this->std);
+  count += bitcount[lo_mods&lo_std];
+  count += bitcount[hi_mods&hi_std];
+  count += bitcount[((lo_mods&~lo_std)|(hi_mods&~hi_std))&lo_nibble(this->any)];
+  return count;
+}
+
+bool
+PreMods__is_empty(const PreMods *this)
+{
+  return this->std == NONE && this->any == NONE;
+}
+
+/*
  *    KeyBinding
  */
 
 void
 KeyBinding__copy(const KeyBinding *this, KeyBinding *dst)
 {
-  dst->kind    = this->kind;
-  dst->premods = this->premods;
-  dst->target  = this->target;
+  memcpy(dst, this, sizeof(KeyBinding));
 }
 
 const ModeTarget*
@@ -67,7 +104,12 @@ const KeyBinding*
 KeyBindingArray__get_binding(const KeyBindingArray *this, uint8_t index)
 {
   static KeyBinding binding;
-  memcpy_P((void*)&binding, (PGM_VOID_P)&this->data[index], sizeof(KeyBinding));
+  static const KeyBinding *last_binding = NULL;
+  if (&this->data[index] != last_binding)
+  {
+    memcpy_P((void*)&binding, (PGM_VOID_P)&this->data[index], sizeof(KeyBinding));
+    last_binding = &this->data[index];
+  }
   return &binding;
 }
 
@@ -87,23 +129,25 @@ MacroTarget__get_map_target(const MacroTarget *this, uint8_t index)
  *    All Bindings
  */
 
-<% for i,keymap in ipairs(kb.keymaps) do
+<% for mapname,keymap in pairs(kb.keymaps) do
      for location,key in pairs(keymap.keys) do
        for i,binding in ipairs(key.bindings) do
          ident = binding_identifier(keymap, key.location, binding.premods, binding.class)
-         if binding.class == 'Map' then %>
-const MapTarget <%=ident%> PROGMEM = { <%= binding.modifiers %>, HID_USAGE_<%= normalize_identifier(binding.usage.name) %> };<%
+         if binding.class == 'Map' then
+         mods = string.format("%03x", binding.modifiers) %>
+const MapTarget   <%=ident%> PROGMEM = { 0x<%= mods %>, HID_USAGE_<%= normalize_identifier(binding.usage.name) %> };<%
          elseif binding.class == 'Macro' then %>
-const MapTarget <%=ident%>Targets[] PROGMEM =
+const MapTarget   <%=ident%>Targets[] PROGMEM =
 {
-<%         for i,map in ipairs(binding.maps) do %>
-  { <%= map.modifiers %>, HID_USAGE_<%= normalize_identifier(map.usage.name) %> },
+<%         for i,map in ipairs(binding.maps) do
+             mods = string.format("%03x", map.modifiers)
+%>  { 0x<%= mods %>, HID_USAGE_<%= normalize_identifier(map.usage.name) %> },
 <%         end %>
 };
 
 const MacroTarget <%= ident %> PROGMEM = { <%= #binding.maps %>, &<%= ident %>Targets[0] }; <%
          elseif binding.class == 'Mode' then %>
-const ModeTarget <%= ident %> PROGMEM = { <%= string.upper(binding.class) %>, kbd_map_<%= binding.name %>_mx }; <%
+const ModeTarget  <%= ident %> PROGMEM = { <%= string.upper(binding.type) %>, keymap_<%= binding.name %> }; <%
          else
            %><%="/* What? */"%><%
          end
@@ -116,7 +160,7 @@ const ModeTarget <%= ident %> PROGMEM = { <%= string.upper(binding.class) %>, kb
  *    Aggregated bindings per key
  */
 
-<% for i,keymap in ipairs(kb.keymaps) do
+<% for mapname,keymap in pairs(kb.keymaps) do
      for location,key in pairs(keymap.keys) do %>
 const KeyBinding <%= keymap.name %>_<%= key.location %>[] PROGMEM =
 {<%    for i,binding in ipairs(key.bindings) do %>
@@ -129,7 +173,9 @@ const KeyBinding <%= keymap.name %>_<%= key.location %>[] PROGMEM =
          else
     %>/* What's a <%= binding.class %>? */ NULL, <%
          end
-%><%= binding.premods %>, (void*)&<%= binding_identifier(keymap, key.location, binding.premods, binding.class) %> }, <%
+         stdmods = string.format("%02x", binding.premods.stdmods)
+         anymods = string.format("%02x", binding.premods.anymods)
+%>{0x<%=stdmods%>, 0x<%=anymods%>}, (void*)&<%= binding_identifier(keymap, key.location, binding.premods, binding.class) %> }, <%
        end %>
 };
 <%

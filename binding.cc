@@ -22,6 +22,21 @@ loc_as_str() const
   }
 }
 
+Modifiers
+Modifiers::
+convert_any(Direction dir)
+{
+  Modifiers result = *this;
+  if (dir == to_left)
+  {
+    if (_mods | any_control)
+    {
+      _mods &= ~any_control;
+      _mods |= left_control;
+    }
+  }
+}
+
 void
 Label::
 accept(KeyboardVisitor &visitor) const

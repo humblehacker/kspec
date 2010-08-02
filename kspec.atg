@@ -47,8 +47,12 @@ PRODUCTIONS
 /* ----------------------------------------------------------------------------- */
   KeyMap =
     "KeyMap:" ident                 (. hh::KeyMap::Ptr map(new hh::KeyMap(t->val)); .)
-    {"base:" ident}                 (. map->set_base(t->val); .)
-    ["default"]                     (. map->make_default(); .)
+    [
+      "base:" ident                 (. map->set_base(t->val); .)
+    ]
+    [
+      "default"                     (. map->make_default(); .)
+    ]
     Key<*map> {Key<*map>}           (. kb->add_keymap(map); .)
     .
 
@@ -99,11 +103,11 @@ PRODUCTIONS
                                       hh::Binding::Ptr binding; .)
     Binding<binding>               (. key.add_binding(binding); .)
     {
-      Binding<binding>             (. key.add_binding(binding); .)
+      "|" Binding<binding>         (. key.add_binding(binding); .)
     }.
 
 /* ----------------------------------------------------------------------------- */
-  Binding<hh::Binding::Ptr &binding> = (. hh::Mods premods; .)
+  Binding<hh::Binding::Ptr &binding> = (. int premods = 0; .)
     [Mods<premods>]
     (                              (. hh::Map::Ptr map; .)
       Map<map>                     (. binding = map; .)
@@ -119,7 +123,7 @@ PRODUCTIONS
                                       std::wstring label;
                                       std::wstring id;
                                       std::wstring page = L"Keyboard_and_Keypad"; .)
-    "Map:" Unslashed<id>           (. hh::Mods mods; .)
+    "Map:" Unslashed<id>           (. int mods = 0; .)
     [Mods<mods>]
     [
       "page:" ident                (. page = t->val; .)
@@ -148,7 +152,10 @@ PRODUCTIONS
     {
       "led:" ident
     }
-    "type:" ("toggle" | "momentary")
+    "type:"
+    ( "toggle"                     (. mode->set_type(hh::Mode::toggle); .)
+    | "momentary"                  (. mode->set_type(hh::Mode::momentary); .)
+    )
     {
       Label<loc, text>             (. mode->add_label(loc, text); .)
     }
@@ -170,7 +177,7 @@ PRODUCTIONS
     .
 
 /* ----------------------------------------------------------------------------- */
-  modifier<hh::Modifier &mod> =
+  modifier<int &mod> =
     ( "left_shift"                 (. mod = hh::left_shift;   .)
     | "left_alt"                   (. mod = hh::left_alt;     .)
     | "left_control"               (. mod = hh::left_control; .)
@@ -179,18 +186,18 @@ PRODUCTIONS
     | "right_alt"                  (. mod = hh::right_alt;    .)
     | "right_control"              (. mod = hh::right_control;.)
     | "right_gui"                  (. mod = hh::right_gui;    .)
-    | "shift"                      (. mod = hh::shift;        .)
-    | "alt"                        (. mod = hh::alt;          .)
-    | "control"                    (. mod = hh::control;      .)
-    | "gui" )                      (. mod = hh::gui;          .)
-    .
+    | "shift"                      (. mod = hh::any_shift;    .)
+    | "alt"                        (. mod = hh::any_alt;      .)
+    | "control"                    (. mod = hh::any_control;  .)
+    | "gui"                        (. mod = hh::any_gui;      .)
+    ).
 
 /* ----------------------------------------------------------------------------- */
-  Mods<hh::Mods& mods> =           (. hh::Modifier mod; .)
+  Mods<int &mods> =                (. int mod; .)
     "<"
-    modifier<mod>                  (. mods.push_back(mod); .)
+    modifier<mod>                  (. mods |= mod; .)
     {
-      "|" modifier<mod>            (. mods.push_back(mod); .)
+      "|" modifier<mod>            (. mods |= mod; .)
     }
     ">".
 
