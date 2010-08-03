@@ -6,7 +6,10 @@
 #include <iterator>
 #include <cassert>
 #include <string>
+#define BOOST_FILESYSTEM_NO_DEPRECATED
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
 #include "Scanner.h"
@@ -21,7 +24,8 @@ namespace po = boost::program_options;
 hh::Keyboard::Ptr parse(const wstring &input_filename);
 void dump(hh::Keyboard &kb);
 void build_lua_environment(const hh::Keyboard &kb, lua_State *L);
-void generate(const fs::path &filename, lua_State *L, const po::variables_map &options);
+void generate(const fs::path &template_filename, const fs::path &output_dir,
+              lua_State *L, const po::variables_map &options);
 void go_interactive(lua_State *L);
 bool process_options(int argc, char *argv[], po::options_description &usage,
                      po::variables_map &options);
@@ -66,6 +70,11 @@ main (int argc, char *argv[])
     cout << usage << endl;
     return 1;
   }
+  catch(const char *e)
+  {
+    cerr << "Unhandled exception: " << e << endl;
+    return 1;
+  }
   catch(...)
   {
     cerr << "Unhandled exception" << endl;
@@ -105,7 +114,9 @@ process_options(int argc, char *argv[],
   ;
 
   po::options_description invisible("Invisible options");
-  invisible.add_options()("input-file", po::value<string>(), "kspec input file");
+  invisible.add_options()
+    ("input-file", po::value<string>(), "kspec input file")
+    ("debug,d", "produce extra debugging output");
 
   po::positional_options_description pos_desc;
   pos_desc.add("input-file", 1);
@@ -136,9 +147,9 @@ generate_code(po::variables_map &options, hh::Keyboard::Ptr &kb)
 
   build_lua_environment(*kb, L);
 
-  fs::path output_dir(options["output-dir"].as<string>());
   fs::path template_dir(options["template-dir"].as<string>());
-  fs::create_directories(output_dir);
+  if (!fs::exists(template_dir) || !fs::is_directory(template_dir))
+    throw "invalid template-dir specified";
 
   int error = luaL_loadfile(L, (template_dir / "shared.lua").string().c_str());
   if (error)
@@ -153,11 +164,26 @@ generate_code(po::variables_map &options, hh::Keyboard::Ptr &kb)
     lua_pop(L, 1);
   }
 
-  generate(output_dir / "matrix.h",  L, options);
-  generate(output_dir / "binding.h", L, options);
-  generate(output_dir / "binding.c", L, options);
-  generate(output_dir / "keymaps.h", L, options);
-  generate(output_dir / "keymaps.c", L, options);
+///////////////////////////////////////////////////////////////////////////
+  fs::path output_dir(options["output-dir"].as<string>());
+  fs::create_directories(output_dir);
+
+  fs::directory_iterator end_iter;
+  for (fs::directory_iterator dir_itr(template_dir); dir_itr != end_iter; ++dir_itr)
+  {
+    try
+    {
+      if (fs::is_regular_file(dir_itr->status()) && boost::iends_with(dir_itr->path().stem(), ".elu"))
+      {
+        generate(dir_itr->path(), output_dir, L, options);
+      }
+    }
+    catch ( const std::exception & ex )
+    {
+      std::cout << dir_itr->path().filename() << " " << ex.what() << std::endl;
+    }
+  }
+///////////////////////////////////////////////////////////////////////////
 
   if (options.count("interactive"))
     go_interactive(L);
@@ -213,11 +239,17 @@ parse(const wstring &input_filename)
 
 
 void
-generate(const fs::path &output_filename, lua_State *L, const po::variables_map &options)
+generate(const fs::path &template_filename, const fs::path &output_dir, lua_State *L,
+         const po::variables_map &options)
 {
   // build the template filename from the output filename, and open it
-  fs::path template_filename(options["template-dir"].as<string>());
-  template_filename /= output_filename.stem() + ".elu" + output_filename.extension();
+  string stem = template_filename.stem();
+  boost::replace_all(stem, ".elu", "");
+  fs::path output_filename(stem + template_filename.extension());
+  output_filename = output_dir / output_filename;
+
+  cout << "generating " << output_filename << " from " << template_filename << endl;
+
   ifstream template_file(template_filename.string().c_str());
 
   // Parse the template file, and build the Lua generator script

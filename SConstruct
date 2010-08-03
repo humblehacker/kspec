@@ -21,9 +21,9 @@ env.Program(target = 'kspec',
             source = sourcefiles,
             ENV    = {'PATH' : os.environ['PATH']},
             LIBS   = ['lua', 
-                      'boost_system-mt-d', 
-                      'boost_filesystem-mt-d',
-                      'boost_program_options-mt-d'])
+                      'boost_system-mt', 
+                      'boost_filesystem-mt',
+                      'boost_program_options-mt'])
 
 env.Command(target = ['Parser.cpp', 'Parser.h', 'Scanner.cpp', 'Scanner.h'],
             source = 'kspec.atg',

@@ -16,11 +16,11 @@ extern "C"
 
 #include "utils.h"
 
-extern "C" {
-  #include "../lua-5.1.4/src/lstate.h"
-}
-inline int lua_stacksize(lua_State *L)  { return (L->top - L->base); }
-inline int lua_stackuse(lua_State *L)  { return (L->stack_last - L->top); }
+//extern "C" {
+//  #include "../lua-5.1.4/src/lstate.h"
+//}
+//inline int lua_stacksize(lua_State *L)  { return (L->top - L->base); }
+//inline int lua_stackuse(lua_State *L)  { return (L->stack_last - L->top); }
 
 void set_field(lua_State *L, const std::string &key, bool value);
 void set_field(lua_State *L, const std::string &key, int value);

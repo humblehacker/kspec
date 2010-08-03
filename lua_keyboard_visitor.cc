@@ -98,7 +98,6 @@ void
 LuaKeyboardVisitor::
 visit(const hh::Key & key)
 {
-  int ss = lua_stackuse(_L);
   assert(lua_istable(_L, -1));
 //wcout << "Key: " << key.location() << endl;
 
@@ -130,7 +129,6 @@ visit(const hh::Key & key)
     lua_settable(_L, -3);
   }
   lua_setfield(_L, -2, "bindings");
-  assert(ss == lua_stackuse(_L));
 }
 
 void
