@@ -10,7 +10,7 @@ if os.name == 'nt':
     env.Append(CCFLAGS = '-I' + escape(home) + '/include')
     env.Append(LIBPATH = [home + '/lib'])
     env.Append(HOME = home)
-elif os.name == 'linux':
+elif os.name == 'posix':
     env.Append(LIBS = ['dl'])
 
 debug = ARGUMENTS.get('debug', 1)
