@@ -60,8 +60,6 @@ public:
   Modifiers &operator |=(Modifier mod) { _mods |= (1<<mod); return *this; }
 
   bool has_any() const { return _mods >= any_control; }
-  enum Direction { to_left, to_right };
-  //Modifiers convert_any(Direction dir);
 
 private:
   int _mods;
