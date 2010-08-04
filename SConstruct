@@ -29,5 +29,3 @@ env.Program(target = 'kspec',
 env.Command(target = ['Parser.cpp', 'Parser.h', 'Scanner.cpp', 'Scanner.h'],
             source = 'kspec.atg',
             action = "coco $SOURCE")
-
-env.Program(target = 'mod_test', source = 'mod_test.c')
