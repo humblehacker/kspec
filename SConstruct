@@ -21,6 +21,7 @@ env.Program(target = 'kspec',
             source = sourcefiles,
             ENV    = {'PATH' : os.environ['PATH']},
             LIBS   = ['lua', 
+                      'dl',
                       'boost_system-mt', 
                       'boost_filesystem-mt',
                       'boost_program_options-mt'])
