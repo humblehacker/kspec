@@ -1,6 +1,18 @@
 import os
 
 env = Environment()
+if os.name == 'nt':
+    env = Environment(tools = ['mingw'])
+    home = os.environ['HOME']
+    escape = env['ESCAPE']
+    env['ENV']['PATH'] += ';' + escape(home) + '/bin'
+    env['ENV']['USERPROFILE'] = home
+    env.Append(CCFLAGS = '-I' + escape(home) + '/include')
+    env.Append(LIBPATH = [home + '/lib'])
+    env.Append(HOME = home)
+elif os.name == 'linux':
+    env.Append(LIBS = ['dl'])
+
 debug = ARGUMENTS.get('debug', 1)
 if int(debug):
     env.Append(CCFLAGS = '-O0 -g')
@@ -21,7 +33,6 @@ env.Program(target = 'kspec',
             source = sourcefiles,
             ENV    = {'PATH' : os.environ['PATH']},
             LIBS   = ['lua', 
-                      'dl',
                       'boost_system-mt', 
                       'boost_filesystem-mt',
                       'boost_program_options-mt'])
