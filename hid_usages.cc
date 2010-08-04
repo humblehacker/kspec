@@ -7,8 +7,16 @@ using std::endl;
 namespace hh
 {
 
+bool
+Usage::
+is_modifier() const
+{
+  return (id >= 0xe0 && id <= 0xe7);
+}
+
 const Usage &
-Usage::lookup(const std::wstring &key, const std::wstring &page)
+Usage::
+lookup(const std::wstring &key, const std::wstring &page)
 {
   Usage (*usages)[] = NULL;
   if (page == L"Keyboard_and_Keypad")

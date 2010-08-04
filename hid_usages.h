@@ -37,6 +37,7 @@ struct Usage
   static Usage generic_desktop_usages[];
   static Usage consumer_control_usages[];
   static const Usage &lookup(const std::wstring &key, const std::wstring &page);
+  bool is_modifier() const;
 };
 
 } // namespace hh

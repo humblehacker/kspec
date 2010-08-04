@@ -96,6 +96,14 @@ KeyBinding__get_map_target(const KeyBinding *this)
   return &target;
 }
 
+const ModifierTarget*
+KeyBinding__get_modifier_target(const KeyBinding *this)
+{
+  static ModifierTarget target;
+  memcpy_P((void*)&target, (PGM_VOID_P)this->target, sizeof(ModifierTarget));
+  return &target;
+}
+
 /*
  *    KeyBindingArray
  */
@@ -134,20 +142,24 @@ MacroTarget__get_map_target(const MacroTarget *this, uint8_t index)
        for i,binding in ipairs(key.bindings) do
          ident = binding_identifier(keymap, key.location, binding.premods, binding.class)
          if binding.class == 'Map' then
-         mods = string.format("%03x", binding.modifiers) %>
-const MapTarget   <%=ident%> PROGMEM = { 0x<%= mods %>, HID_USAGE_<%= normalize_identifier(binding.usage.name) %> };<%
+           if binding.usage.is_modifier then %>
+const ModifierTarget <%=ident%> PROGMEM = { <%= modifier_symbol_from_name(binding.usage.name) %> };<%
+           else
+             mods = string.format("%03x", convert_anymods_to_stdmods(binding.modifiers)) %>
+const MapTarget      <%=ident%> PROGMEM = { 0x<%= mods %>, HID_USAGE_<%= normalize_identifier(binding.usage.name) %> };<%
+           end
          elseif binding.class == 'Macro' then %>
-const MapTarget   <%=ident%>Targets[] PROGMEM =
+const MapTarget      <%=ident%>Targets[] PROGMEM =
 {
 <%         for i,map in ipairs(binding.maps) do
-             mods = string.format("%03x", map.modifiers)
+             mods = string.format("%02x", convert_anymods_to_stdmods(map.modifiers))
 %>  { 0x<%= mods %>, HID_USAGE_<%= normalize_identifier(map.usage.name) %> },
 <%         end %>
 };
 
-const MacroTarget <%= ident %> PROGMEM = { <%= #binding.maps %>, &<%= ident %>Targets[0] }; <%
+const MacroTarget    <%= ident %> PROGMEM = { <%= #binding.maps %>, &<%= ident %>Targets[0] }; <%
          elseif binding.class == 'Mode' then %>
-const ModeTarget  <%= ident %> PROGMEM = { <%= string.upper(binding.type) %>, keymap_<%= binding.name %> }; <%
+const ModeTarget     <%= ident %> PROGMEM = { <%= string.upper(binding.type) %>, keymap_<%= binding.name %> }; <%
          else
            %><%="/* What? */"%><%
          end

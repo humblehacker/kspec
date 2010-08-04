@@ -144,6 +144,7 @@ visit(const hh::Map & map)
   // map.usage.name = ""
   lua_newtable(_L);
   set_field(_L, "name", map.usage().key);
+  set_field(_L, "is_modifier",  map.usage().is_modifier());
   lua_setfield(_L, -2, "usage");
 
   // map.modifiers = <number>
