@@ -3,7 +3,7 @@
 
 #include <map>
 #include <vector>
-#include "boost/smart_ptr.hpp"
+#include <boost/smart_ptr.hpp>
 #include "boost/pointer_cast.hpp"
 #include "hid_usages.h"
 #include "keyboard_visitor.h"
@@ -61,7 +61,7 @@ public:
 
   bool has_any() const { return _mods >= any_control; }
   enum Direction { to_left, to_right };
-  Modifiers convert_any(Direction dir);
+  //Modifiers convert_any(Direction dir);
 
 private:
   int _mods;

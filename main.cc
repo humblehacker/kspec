@@ -347,12 +347,17 @@ generate(const fs::path &template_filename, const fs::path &output_dir, lua_Stat
 void
 build_lua_environment(const hh::Keyboard &kb, lua_State *L)
 {
-  int index;
-
   lua_newtable(L);
   hh::LuaKeyboardVisitor v(L);
   kb.accept(v);
   lua_setglobal(L, "kb");
 }
 
-
+#ifdef WIN32
+extern "C" {
+double __strtod( const char *str, char ** endptr )
+{
+	return strtod(str, endptr);
+}
+}
+#endif

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <tr1/memory>
+#include <boost/smart_ptr.hpp>
 
 #include "binding.h"
 #include "keyboard_visitor.h"
@@ -20,7 +20,7 @@ class Key;
 typedef std::vector<wstring> WStrings;
 typedef WStrings IOPins;
 typedef WStrings MatrixRow;
-typedef std::tr1::shared_ptr<MatrixRow> MatrixRowPtr;
+typedef boost::shared_ptr<MatrixRow> MatrixRowPtr;
 typedef std::vector<MatrixRowPtr> Matrix;
 typedef std::map<wstring, Key> Keys;
 typedef std::vector<Binding::Ptr> Bindings;

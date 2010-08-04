@@ -20,22 +20,24 @@ loc_as_str() const
   case bottom_center: return L"bottom_center";
   case bottom_right:  return L"bottom_right";
   }
+  return L"";
 }
 
-Modifiers
-Modifiers::
-convert_any(Direction dir)
-{
-  Modifiers result = *this;
-  if (dir == to_left)
-  {
-    if (_mods | any_control)
-    {
-      _mods &= ~any_control;
-      _mods |= left_control;
-    }
-  }
-}
+//Modifiers
+//Modifiers::
+//convert_any(Direction dir)
+//{
+//  Modifiers result = *this;
+//  if (dir == to_left)
+//  {
+//    if (_mods | any_control)
+//    {
+//      _mods &= ~any_control;
+//      _mods |= left_control;
+//    }
+//  }
+//  return 0;
+//}
 
 void
 Label::
