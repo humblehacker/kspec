@@ -1,5 +1,10 @@
 import os
 
+libs = ['lua', 
+        'boost_system-mt', 
+        'boost_filesystem-mt',
+        'boost_program_options-mt'] 
+
 env = Environment()
 if os.name == 'nt':
     env = Environment(tools = ['mingw'])
@@ -11,7 +16,7 @@ if os.name == 'nt':
     env.Append(LIBPATH = [home + '/lib'])
     env.Append(HOME = home)
 elif os.name == 'posix':
-    env.Append(LIBS = ['dl'])
+    libs.append('dl')
 
 debug = ARGUMENTS.get('debug', 1)
 if int(debug):
@@ -32,10 +37,7 @@ sourcefiles = ['Parser.cpp',
 env.Program(target = 'kspec', 
             source = sourcefiles,
             ENV    = {'PATH' : os.environ['PATH']},
-            LIBS   = ['lua', 
-                      'boost_system-mt', 
-                      'boost_filesystem-mt',
-                      'boost_program_options-mt'])
+            LIBS   = libs)
 
 env.Command(target = ['Parser.cpp', 'Parser.h', 'Scanner.cpp', 'Scanner.h'],
             source = 'kspec.atg',
