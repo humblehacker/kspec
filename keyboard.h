@@ -77,6 +77,28 @@ private:
 
 typedef std::map<wstring, KeyMap::Ptr> KeyMaps;
 
+/*    L E D    */
+
+class LED
+{
+public:
+  LED(const wstring &ident) : _name(ident), _std(none) {}
+
+  typedef boost::shared_ptr<LED> Ptr;
+  enum FlowDir { source, sink };
+  enum Standard { numlock, capslock, scrolllock, compose, kana, none };
+
+  void set_pin(const wstring &pin) { _pin = pin; }
+  void set_flow(FlowDir flow) { _flow = flow; }
+  void set_std(Standard std) { _std = std; }
+
+private:
+  wstring  _name;
+  wstring  _pin;
+  FlowDir  _flow;
+  Standard _std;
+};
+
 /*    K E Y B O A R D    */
 
 class Keyboard
@@ -85,6 +107,7 @@ public:
   Keyboard(const wstring &ident);
 
   typedef boost::shared_ptr<Keyboard> Ptr;
+  typedef std::vector<LED::Ptr> LEDs;
 
   void set_ident(const wstring &ident)   { _ident = ident; }
   void add_col_pin(const wstring &pin)   { _cpins.push_back(pin); }
@@ -92,6 +115,7 @@ public:
   void add_matrix_row(MatrixRowPtr row)  { _matrix.push_back(row); }
   void add_keymap(KeyMap::Ptr map)       { _maps[map->name()] = map; }
   void set_block_ghost_keys(bool block)  { _block_ghost_keys = block; }
+  void add_led(LED::Ptr led)             { _leds.push_back(led); }
 
   const wstring &ident() const           { return _ident; }
   const Matrix &matrix() const           { return _matrix; }
@@ -109,6 +133,7 @@ private:
   IOPins  _cpins, _rpins;
   KeyMaps _maps;
   bool    _block_ghost_keys;
+  LEDs    _leds;
 };
 
 }; // namespace hh

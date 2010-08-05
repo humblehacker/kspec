@@ -1,6 +1,7 @@
 Keyboard:HumbleHackerReference
 
 Matrix:
+
   Row:     1A 1B 1C 1D 1E 1F 1G 1H 1I 1J 1K 1L 1M 1N 1O 1P
   Row:     -- 2A 2B 2C 2D 2E 2F 2G 2H 2I 2J 2K 2L 2M 2N 2O
   Row:     -- 3A 3B 3C 3D 3E 3F 3G 3H 3I 3J 3K 3L 3M 3N 3O
@@ -8,11 +9,19 @@ Matrix:
   Row:     -- 5A 5B 5C 5D 5E 5F 5G 5H 5I 5J 5K 5L 5M 5N 5O
   Row:     -- 6A 6B 6C 6D 6E 6F 6G 6H 6I 6J 6K 6L 6M 6N 6O
   Row:     -- -- -- -- -- -- -- 7G 7H -- -- -- -- -- -- --
+
   ColPins: PC0 PC1 PC2 PC3 PC4 PC5 PC6 PC7 PD7 PD6 PD5 PD4 PD3 PD2 PD1 PD0
   RowPins: PA0 PA1 PA2 PA3 PA4 PA5 PA6
+
+  LED:num pin:PF0 flow:source std:num_lock
+  LED:cap pin:PF1 flow:source std:caps_lock
+  LED:scl pin:PF2 flow:source std:scroll_lock
+  LED:dv  pin:PF3 flow:source
+
   BlockGhostKeys:yes
 
 KeyMap:Common
+
   Key:1A      Map:ESCAPE                                   tl:"esc"
   Key:1B      Map:F1                                       tl:"F1"
   Key:1C      Map:F2                                       tl:"F2"
@@ -64,7 +73,9 @@ KeyMap:Common
   Key:6O      Mode:Fn4 type:momentary                      tl:"Fn4"
   Key:7G      Map:Backspace                                tl:"Backspace"
   Key:7H      Map:Return_or_Enter                          tl:"Return"
+
 KeyMap:US base:Common
+
   Key:2A      Map:`_and_~                                  tl:"~"  bl:"`"
   Key:2B      Map:1_and_!                                  tl:"!"  bl:"1"
   Key:2C      Map:2_and_@                                  tl:"@"  bl:"2"
@@ -105,7 +116,9 @@ KeyMap:US base:Common
   Key:5L      Map:,_and_\<                                 tl:"<"  bl:","
   Key:5M      Map:._and_\>                                 tl:">"  bl:"."
   Key:5N      Map:/_and_?                                  tl:"?"  bl:"/"
+
 KeyMap:DV base:US default
+
   Key:3B      Map:squote_and_dquote                        tl:"\"" bl:"\'"
   Key:3C      Map:,_and_\<                                 tl:"<"  bl:","
   Key:3D      Map:._and_\>                                 tl:">"  bl:"."
@@ -135,7 +148,9 @@ KeyMap:DV base:US default
   Key:5L      Map:w_and_W                                  tl:"W"
   Key:5M      Map:v_and_V                                  tl:"V"
   Key:5N      Map:z_and_Z                                  tl:"Z"
+
 KeyMap:pDV base:DV
+
   Key:2A      Map:4_and_$ <shift>                          bl:"$"
     | <shift> Map:`_and_~ <shift>                          tl:"~"
   Key:2B      Map:7_and_& <shift>                          bl:"&"
@@ -164,6 +179,7 @@ KeyMap:pDV base:DV
     | <shift> Map:`_and_~                                  tl:"'"
 
 KeyMap:Colemak base:Common
+
   Key:2A      Map:`_and_~                                  tl:"~"  bl:"`"
   Key:2B      Map:1_and_!                                  tl:"!"  bl:"1"
   Key:2C      Map:2_and_@                                  tl:"@"  bl:"2"
@@ -207,6 +223,7 @@ KeyMap:Colemak base:Common
   Key:5N      Map:/_and_?                                  tl:"?"  bl:"/"
 
 KeyMap:Fn1 base:Common
+
   Key:2C      Map:Tab <shift>                              tl:"Back Tab"
   Key:2D      Map:Tab                                      tl:"Tab"
   Key:3B      Map:z_and_Z <gui|shift>                      tl:"Redo"
@@ -240,6 +257,7 @@ KeyMap:Fn1 base:Common
   Key:5N      Map:z_and_Z <gui>                            tl:"Undo"
 
 KeyMap:Fn2 base:Common
+
   Key:3A      Map:Tab                                      tr:"tab"
   Key:3B      Map:=_and_+ <shift>                          tr:"+"
   Key:4B      Map:=_and_+                                  tr:"="
@@ -266,6 +284,7 @@ KeyMap:Fn2 base:Common
   Key:5D      Map:\\_and_\|                                tr:"\\"
 
 KeyMap:Fn3 base:Common
+
     Key:2L    Map:Keypad_/                                 bl:"/"
     Key:2M    Map:Keypad_*                                 bl:"*"
     Key:2N    Map:Keypad_-                                 bl:"-"
@@ -288,6 +307,7 @@ KeyMap:Fn3 base:Common
     Key:6N    Map:Keypad_ENTER                             bl:"Enter"
 
 KeyMap:Fn4 base:Common
+
     Key:1B    Mode:US type:toggle                          br:"US"
     Key:1C    Mode:DV led:Dvorak type:toggle               br:"Dvorak"
     Key:1D    Mode:pDV led:Dvorak type:toggle              br:"pDvorak"

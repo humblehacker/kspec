@@ -42,7 +42,7 @@ PRODUCTIONS
 
 /* ----------------------------------------------------------------------------- */
   Matrix =
-    "Matrix:" Row { Row } Pinouts [BlockGhostKeys].
+    "Matrix:" Row {Row} Pinouts {Led} [BlockGhostKeys].
 
 /* ----------------------------------------------------------------------------- */
   KeyMap =
@@ -84,6 +84,23 @@ PRODUCTIONS
     {
       ident                        (. kb->add_row_pin(t->val); .)
     }.
+
+/* ----------------------------------------------------------------------------- */
+  Led =
+    "LED:" ident                   (. hh::LED::Ptr led(new hh::LED(t->val)); .)
+    "pin:" ident                   (. led->set_pin(t->val); .)
+    "flow:"
+    ("source"                      (. led->set_flow(hh::LED::source); .)
+    |"sink"                        (. led->set_flow(hh::LED::sink); .)
+    )
+    ["std:"
+    ("num_lock"                    (. led->set_std(hh::LED::numlock); .)
+    |"caps_lock"                   (. led->set_std(hh::LED::capslock); .)
+    |"scroll_lock"                 (. led->set_std(hh::LED::scrolllock); .)
+    |"compose"                     (. led->set_std(hh::LED::compose); .)
+    |"kana"                        (. led->set_std(hh::LED::kana); .)
+    )]                             (. kb->add_led(led); .)
+    .
 
 /* ----------------------------------------------------------------------------- */
   BlockGhostKeys =                 (. bool block = false; .)
