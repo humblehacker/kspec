@@ -320,6 +320,11 @@ generate(const fs::path &template_filename, const fs::path &output_dir, lua_Stat
 
   if (options.count("debug"))
   {
+    cout << endl;
+    cout << "====================================================================" << endl;
+    cout << template_filename.string()                                             << endl;
+    cout << "====================================================================" << endl;
+    cout << endl;
     int linenum = 1;
     while (getline(out, line))
     {

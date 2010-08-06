@@ -13,10 +13,10 @@ Matrix:
   ColPins: PC0 PC1 PC2 PC3 PC4 PC5 PC6 PC7 PD7 PD6 PD5 PD4 PD3 PD2 PD1 PD0
   RowPins: PA0 PA1 PA2 PA3 PA4 PA5 PA6
 
-  LED:num pin:PF0 flow:source std:num_lock
-  LED:cap pin:PF1 flow:source std:caps_lock
-  LED:scl pin:PF2 flow:source std:scroll_lock
-  LED:dv  pin:PF3 flow:source
+  LED:num_lock    pin:PF0 flow:source
+  LED:caps_lock   pin:PF1 flow:sink
+  LED:scroll_lock pin:PF2 flow:source
+  LED:dv          pin:PF3 flow:sink
 
   BlockGhostKeys:yes
 

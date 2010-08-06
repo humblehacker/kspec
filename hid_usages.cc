@@ -1,4 +1,5 @@
 #include <iostream>
+#include <exception>
 #include "hid_usages.h"
 
 using std::wcout;
@@ -26,7 +27,7 @@ lookup(const std::wstring &key, const std::wstring &page)
   else if (page == L"Consumer_Control")
     usages = &consumer_control_usages;
   else
-    throw "Unknown usage page";
+    return (*usages)[1]; // Unknown usage page;
 
   int index = 0;
   Usage *usage;
@@ -36,7 +37,7 @@ lookup(const std::wstring &key, const std::wstring &page)
        return *usage;
      ++index;
   }
-  throw "Usage not found";
+  return (*usages)[0]; // Usage not found
 }
 
 //UsagePage:Keyboard_and_Keypad id:0x07

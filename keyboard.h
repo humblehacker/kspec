@@ -82,15 +82,20 @@ typedef std::map<wstring, KeyMap::Ptr> KeyMaps;
 class LED
 {
 public:
-  LED(const wstring &ident) : _name(ident), _std(none) {}
-
+  enum Standard { numlock, capslock, scrolllock, compose, kana, none };
   typedef boost::shared_ptr<LED> Ptr;
   enum FlowDir { source, sink };
-  enum Standard { numlock, capslock, scrolllock, compose, kana, none };
+
+  LED(const wstring &ident, Standard std=none) : _name(ident), _std(std) {}
 
   void set_pin(const wstring &pin) { _pin = pin; }
   void set_flow(FlowDir flow) { _flow = flow; }
   void set_std(Standard std) { _std = std; }
+
+  const wstring &name() const { return _name; }
+  const wstring &pin() const  { return _pin; }
+  FlowDir flow() const  { return _flow; }
+  Standard std() const  { return _std; }
 
 private:
   wstring  _name;
@@ -122,6 +127,7 @@ public:
   const IOPins &col_pins() const         { return _cpins; }
   const IOPins &row_pins() const         { return _rpins; }
   const KeyMaps &maps() const            { return _maps; }
+  const LEDs &leds() const               { return _leds; }
   bool  block_ghost_keys() const         { return _block_ghost_keys; }
 
   void accept(KeyboardVisitor &visitor) const;

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "keyboard.h"
 #include "hid_usages.h"
 #include "utils.h"
@@ -6,6 +7,21 @@
 COMPILER kspec
 
   hh::Keyboard::Ptr kb;
+
+  const hh::Usage &lookup_usage(const std::wstring &id, const std::wstring &page)
+  {
+    const hh::Usage &usage = hh::Usage::lookup(id, page);
+    if (usage.id < 2)
+    {
+      std::wstringstream str;
+      if (usage.id == 0)
+        str << "Unknown usage '" << id << "'";
+      else
+        str << "Unknown usage page '" << page << "'";
+      SemErr(str.str().c_str());
+    }
+    return usage;
+  }
 
 CHARACTERS
   letter  = 'A' .. 'Z' + 'a' .. 'z'.
@@ -87,19 +103,24 @@ PRODUCTIONS
 
 /* ----------------------------------------------------------------------------- */
   Led =
-    "LED:" ident                   (. hh::LED::Ptr led(new hh::LED(t->val)); .)
+    "LED:"                         (. hh::LED::Ptr led; .)
+    ("num_lock"                    (. led.reset(new hh::LED(t->val, 
+                                                            hh::LED::numlock)); .)
+    |"caps_lock"                   (. led.reset(new hh::LED(t->val, 
+                                                            hh::LED::capslock)); .)
+    |"scroll_lock"                 (. led.reset(new hh::LED(t->val, 
+                                                            hh::LED::scrolllock)); .)
+    |"compose"                     (. led.reset(new hh::LED(t->val, 
+                                                            hh::LED::compose)); .)
+    |"kana"                        (. led.reset(new hh::LED(t->val, 
+                                                            hh::LED::kana)); .)
+    | ident                        (. led.reset(new hh::LED(t->val)); .)
+    )
     "pin:" ident                   (. led->set_pin(t->val); .)
     "flow:"
     ("source"                      (. led->set_flow(hh::LED::source); .)
     |"sink"                        (. led->set_flow(hh::LED::sink); .)
-    )
-    ["std:"
-    ("num_lock"                    (. led->set_std(hh::LED::numlock); .)
-    |"caps_lock"                   (. led->set_std(hh::LED::capslock); .)
-    |"scroll_lock"                 (. led->set_std(hh::LED::scrolllock); .)
-    |"compose"                     (. led->set_std(hh::LED::compose); .)
-    |"kana"                        (. led->set_std(hh::LED::kana); .)
-    )]                             (. kb->add_led(led); .)
+    )                              (. kb->add_led(led); .)
     .
 
 /* ----------------------------------------------------------------------------- */
@@ -144,7 +165,7 @@ PRODUCTIONS
     [Mods<mods>]
     [
       "page:" ident                (. page = t->val; .)
-    ]                              (. const hh::Usage &usage = hh::Usage::lookup(id, page);
+    ]                              (. const hh::Usage &usage = lookup_usage(id, page);
                                       map.reset(new hh::Map(usage, mods)); .)
     {
       Label<loc, label>            (. map->add_label(loc, label); .)

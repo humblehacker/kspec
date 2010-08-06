@@ -45,6 +45,41 @@ visit(const hh::Keyboard &kb)
   lua_setfield(_L, -2, "rows");
   lua_setfield(_L, -2, "matrix");
 
+  // kb.leds = { led1, led2 }
+  lua_newtable(_L);
+  int index = 1;
+  foreach(const LED::Ptr &led, kb.leds())
+  {
+    lua_pushnumber(_L, index++);
+    lua_newtable(_L);
+    set_field(_L, "name", led->name());
+    set_field(_L, "pin",  led->pin());
+    if (led->flow() == hh::LED::source)
+      set_field(_L, "flow", "source");
+    else
+      set_field(_L, "flow", "sink");
+    switch(led->std())
+    {
+      case hh::LED::numlock:
+        set_field(_L, "std", "num_lock");
+        break;
+      case hh::LED::capslock:
+        set_field(_L, "std", "caps_lock");
+        break;
+      case hh::LED::scrolllock:
+        set_field(_L, "std", "scroll_lock");
+        break;
+      case hh::LED::compose:
+        set_field(_L, "std", "compose");
+        break;
+      case hh::LED::kana:
+        set_field(_L, "std", "kana");
+        break;
+    }
+    lua_settable(_L, -3);
+  }
+  lua_setfield(_L, -2, "leds");
+
   // kb.block_ghost_keys = <boolean>
   set_field(_L, "block_ghost_keys", kb.block_ghost_keys());
 

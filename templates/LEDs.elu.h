@@ -50,69 +50,127 @@
 			#error Do not include this file directly. Include LUFA/Drivers/Board/LEDS.h instead.
 		#endif
 
-	/* Public Interface - May be used in end-application: */
-		/* Macros: */
-			/** LED mask for the first LED on the board. */
-			#define LEDS_LED1        (1<<0)
+    /* Public Interface - May be used in end-application: */
+      /* Macros: */
 
-			/** LED mask for the second LED on the board. */
-			#define LEDS_LED2        (1<<1)
-
-			/** LED mask for the third LED on the board. */
-			#define LEDS_LED3        (1<<2)
-
-			/** LED mask for the fourth LED on the board. */
-			#define LEDS_LED4        (1<<3)
+        /** LED masks. */
+<% 
+   stdleds = {}
+   otherleds = {}
+   for i,led in ipairs(kb.leds) do 
+     if led.std == nil then
+       otherleds[#otherleds+1] = led
+     end
+   end
+%>
+        enum LEDs {
+          LED_NUM_LOCK = (1<<0),
+          LED_CAPS_LOCK = (1<<1),
+          LED_SCROLL_LOCK = (1<<2),
+          LED_COMPOSE = (1<<3),
+          LED_KANA = (1<<4),
+<% for i,led in ipairs(otherleds) do %>
+			 LED_<%=string.upper(led.name)%> = (1<<<%=i+4%>),
+<% end %>
+        };
 
 			/** LED mask for all the LEDs on the board. */
-			#define LEDS_ALL_LEDS    (LEDS_LED1 | LEDS_LED2 | LEDS_LED3 | LEDS_LED4)
+			#define LEDS_ALL_LEDS    (0<% 
+   for i,led in ipairs(kb.leds) do 
+     %> | LED_<%=string.upper(led.name)%><%
+   end%>)
 
 			/** LED mask for the none of the board LEDs */
 			#define LEDS_NO_LEDS     0
-
-      /** Keyboard specific LED mask names */
-      #define LED_NUM          LEDS_LED1
-      #define LED_CAPS         LEDS_LED2
-      #define LED_SCRL         LEDS_LED3
 
 		/* Inline Functions: */
 		#if !defined(__DOXYGEN__)
 			static inline void LEDs_Init(void)
 			{
-        // Keyboard LEDs are F0-F3
-        DDRF  |= LEDS_ALL_LEDS;  // set pins as outputs
-        PORTF |= LEDS_ALL_LEDS;  // set pins high to prevent sinking (lights off)
+ <% for i,led in ipairs(kb.leds) do 
+      port = string.upper(string.sub(led.pin,2,2))
+      pin  = string.sub(led.pin,3,3) 
+      name = 'LED_' .. string.upper(led.name) %>
+           // <%=name%>
+           DDR<%=port%> |= (1<<<%=pin%>); // set pin as output
+<%    if led.flow == 'sink' then %>
+           PORT<%=port%> |= (1<<<%=pin%>); // set pin high to prevent sinking (led off)
+<%    else %>
+           PORT<%=port%> &= ~(1<<<%=pin%>); // set pin low (led off)
+<%    end
+    end %>
 			}
 
 			static inline void LEDs_TurnOnLEDs(const uint8_t LEDMask)
 			{
-				PORTF &= ~LEDMask;
+<% for i,led in ipairs(kb.leds) do 
+      port = "PORT_" .. string.upper(string.sub(led.pin,2,2))
+      pin  = string.sub(led.pin,3,3) 
+      name = 'LED_' .. string.upper(led.name) %>
+           if (LEDMask & <%=name%>)
+<%    if led.flow == 'sink' then %>
+             <%=port%> &= ~(1<<<%=pin%>);
+<%    else %>
+             <%=port%> |= (1<<<%=pin%>);
+<%    end
+    end %>
 			}
 
 			static inline void LEDs_TurnOffLEDs(const uint8_t LEDMask)
 			{
-				PORTF |= LEDMask;
+<% for i,led in ipairs(kb.leds) do 
+      print(led.flow)
+      port = "PORT_" .. string.upper(string.sub(led.pin,2,2))
+      pin  = string.sub(led.pin,3,3) 
+      name = 'LED_' .. string.upper(led.name) %>
+           if (LEDMask & <%=name%>)
+<%    if led.flow == 'sink' then %>
+             <%=port%> |= (1<<<%=pin%>);
+<%    else %>
+             <%=port%> &= ~(1<<<%=pin%>);
+<%    end
+    end %>
 			}
 
 			static inline void LEDs_SetAllLEDs(const uint8_t LEDMask)
 			{
-        PORTF = ((PORTF | LEDS_ALL_LEDS) & ~LEDMask);
+           LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+           LEDs_TurnOnLEDs(LEDMask);
 			}
 
 			static inline void LEDs_ChangeLEDs(const uint8_t LEDMask, const uint8_t ActiveMask)
 			{
-        PORTF = ((PORTF | LEDMask) & ~ActiveMask);
+           LEDs_TurnOffLEDs(LEDMask);
+           LEDs_TurnOnLEDs(ActiveMask);
 			}
 
 			static inline void LEDs_ToggleLEDs(const uint8_t LEDMask)
 			{
-        PORTF = (PORTF ^ (LEDMask & LEDS_ALL_LEDS));
+<% for i,led in ipairs(kb.leds) do 
+      port = "PORT_" .. string.upper(string.sub(led.pin,2,2))
+      pin  = string.sub(led.pin,3,3) 
+      name = 'LED_' .. string.upper(led.name) %>
+           if (LEDMask & <%=name%>)
+             <%=port%> ^= ~(1<<<%=pin%>);
+<% end %>
 			}
 
 			static inline uint8_t LEDs_GetLEDs(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t LEDs_GetLEDs(void)
 			{
-				return ~(PORTF & LEDS_ALL_LEDS);
+           uint8_t result = 0;
+<% for i,led in ipairs(kb.leds) do 
+      port = "PORT_" .. string.upper(string.sub(led.pin,2,2))
+      pin  = string.sub(led.pin,3,3) 
+      name = 'LED_' .. string.upper(led.name) %>
+<%    if led.flow == 'sink' then %>
+           if ((<%=port%> & ~(1<<<%=pin%>)) == <%=port%>)
+<%    else %>
+           if ((<%=port%> & (1<<<%=pin%>)) == <%=port%>)
+<%    end %>
+             result |= <%=name%>;
+<%  end %>
+           return result;
 			}
 		#endif
 
