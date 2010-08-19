@@ -1,6 +1,7 @@
 import os
 
 libs = ['lua', 
+        'usb-1.0',
         'boost_system-mt', 
         'boost_filesystem-mt',
         'boost_program_options-mt'] 
@@ -17,6 +18,7 @@ if os.name == 'nt':
     env.Append(HOME = home)
 elif os.name == 'posix':
     libs.append('dl')
+#   env.Append(LINKFLAGS = '-static')
 
 debug = ARGUMENTS.get('debug', 1)
 if int(debug):
@@ -27,11 +29,15 @@ sourcefiles = ['Parser.cpp',
                'Scanner.cpp', 
                'keyboard.cc',
                'hid_usages.cc',
+               'generate.cc',
+               'program.cc',
                'lua_helpers.cc',
                'keyboard_visitor.cc',
                'lua_keyboard_visitor.cc',
                'binding.cc',
                'utils.cc',
+               'usb.cc',
+               'usbexception.cc',
                'main.cc']
 
 env.Program(target = 'kspec', 
