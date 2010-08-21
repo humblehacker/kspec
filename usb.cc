@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "usb.h"
 #include "utils.h"
@@ -38,6 +39,53 @@ cancel()
     throw USBException(result);
 }
 
+void
+USBTransfer::
+callback(libusb_transfer *tx)
+{
+  USBTransfer *self = reinterpret_cast<USBTransfer*>(tx->user_data);
+  switch (tx->status)
+  {
+    case LIBUSB_TRANSFER_COMPLETED:
+      self->on_complete();
+      break;
+    case LIBUSB_TRANSFER_CANCELLED:
+      self->on_cancel();
+      break;
+    case LIBUSB_TRANSFER_ERROR:
+      self->on_error();
+      break;
+    case LIBUSB_TRANSFER_NO_DEVICE:
+      self->on_no_device();
+      break;
+    case LIBUSB_TRANSFER_OVERFLOW:
+      self->on_overflow();
+      break;
+    case LIBUSB_TRANSFER_STALL:
+      self->on_stall();
+      break;
+    case LIBUSB_TRANSFER_TIMED_OUT:
+      self->on_time_out();
+      break;
+  }
+}
+
+//  class USBControlTransfer =======================================
+
+USBControlTransfer::
+USBControlTransfer(USBDevice::Ptr device, unsigned char endpoint, int buffer_size,
+                   unsigned int timeout)
+: USBTransfer(), _buffer(buffer_size)
+{
+  libusb_fill_control_setup(&_buffer[0],
+    LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_INTERFACE,
+    0, /* TODO: Constants for kspec request types */
+    0, 0, _buffer.size());
+
+  libusb_fill_control_transfer(_transfer, device->handle(), &_buffer[0],
+    &USBTransfer::callback, reinterpret_cast<void*>(this), timeout);
+}
+
 //  class USBBulkTransfer =======================================
 
 USBBulkTransfer::
@@ -46,7 +94,7 @@ USBBulkTransfer(USBDevice::Ptr device, unsigned char endpoint, int buffer_size,
 : USBTransfer(), _buffer(buffer_size)
 {
   libusb_fill_bulk_transfer(_transfer, device->handle(), endpoint,
-    &_buffer[0], _buffer.size(), callback, NULL, timeout);
+    &_buffer[0], _buffer.size(), callback, reinterpret_cast<void*>(this), timeout);
 }
 
 //  class USBDevice =============================================
@@ -141,7 +189,7 @@ release_all_interfaces()
 //  class USB ===================================================
 
 USB::
-USB(int debug_level)
+USB(DebugLevel debug_level)
 {
   libusb_context *context = NULL;
   int result = libusb_init(&context);
