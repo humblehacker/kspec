@@ -1,11 +1,14 @@
 import os
 
+PLATFORM = os.uname()[0].lower()
+
 libs = ['lua', 
         'boost_system-mt', 
         'boost_filesystem-mt',
         'boost_program_options-mt'] 
 
 env = Environment()
+
 if os.name == 'nt':
     env = Environment(tools = ['mingw'])
     home = os.environ['HOME']
@@ -17,6 +20,13 @@ if os.name == 'nt':
     env.Append(HOME = home)
 elif os.name == 'posix':
     libs.append('dl')
+
+if PLATFORM == 'darwin':
+    archs = map(lambda x: ['-arch', x], ['i386', 'x86_64'])
+    env.Append(
+        CCFLAGS = archs,
+        LINKFLAGS = archs
+    )
 
 debug = ARGUMENTS.get('debug', 1)
 if int(debug):
