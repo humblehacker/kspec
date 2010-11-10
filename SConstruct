@@ -3,6 +3,8 @@ import os
 PLATFORM = os.uname()[0].lower()
 
 libs = ['lua', 
+        'cairo',
+        'cairomm-1.0',
         'boost_system-mt', 
         'boost_filesystem-mt',
         'boost_program_options-mt'] 
@@ -32,6 +34,16 @@ debug = ARGUMENTS.get('debug', 1)
 if int(debug):
     env.Append(CCFLAGS = '-O0 -g')
     env.Append(LINKFLAGS = '-g')
+
+env.Append(CCFLAGS = '''
+    -I/usr/local/include/cairomm-1.0
+    -I/usr/local/include/sigc++-2.0
+    -I/usr/X11R6/include/cairo
+    -I/usr/X11R6/include/freetype2
+    -I/usr/X11R6/include
+    ''')
+
+env.Append(LINKFLAGS = '-L/usr/X11R6/lib')
 
 sourcefiles = ['Parser.cpp', 
                'Scanner.cpp', 
