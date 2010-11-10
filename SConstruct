@@ -35,20 +35,13 @@ if int(debug):
     env.Append(CCFLAGS = '-O0 -g')
     env.Append(LINKFLAGS = '-g')
 
-env.Append(CCFLAGS = '''
-    -I/usr/local/include/cairomm-1.0
-    -I/usr/local/include/sigc++-2.0
-    -I/usr/X11R6/include/cairo
-    -I/usr/X11R6/include/freetype2
-    -I/usr/X11R6/include
-    ''')
-
-env.Append(LINKFLAGS = '-L/usr/X11R6/lib')
+env.ParseConfig('pkg-config --cflags --libs sigc++-2.0 freetype2 fontconfig pixman-1 cairo cairomm-1.0')
 
 sourcefiles = ['Parser.cpp', 
                'Scanner.cpp', 
                'keyboard.cc',
                'hid_usages.cc',
+               'generate.cc',
                'lua_helpers.cc',
                'keyboard_visitor.cc',
                'lua_keyboard_visitor.cc',
