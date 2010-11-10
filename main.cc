@@ -22,7 +22,8 @@ hh::Keyboard::Ptr parse(const wstring &input_filename);
 void dump(hh::Keyboard &kb);
 bool process_options(int argc, char *argv[], po::options_description &usage,
                      po::variables_map &options);
-void produce_image(po::variables_map &options, hh::Keyboard::Ptr &kb);
+enum DisplayType { DISPLAY_PDF, DISPLAY_SVG, DISPLAY_PNG };
+void produce_image(DisplayType dt, hh::Keyboard::Ptr &kb);
 
 int
 main (int argc, char *argv[])
@@ -44,9 +45,23 @@ main (int argc, char *argv[])
     {
       generate_code(options, kb);
     }
-    else if (options.count("pdf") || options.count("png") || options.count("svg"))
+    else if (options.count("display"))
     {
-      produce_image(options, kb);
+      DisplayType dt;
+      string s = options["display"].as<string>();
+      if (s == "pdf")
+        dt = DISPLAY_PDF;
+      else if (s == "png")
+        dt = DISPLAY_PNG;
+      else if (s == "svg")
+        dt = DISPLAY_SVG;
+      else
+      {
+        boost::program_options::invalid_option_value e(s);
+        e.set_option_name("display");
+        throw e;
+      }
+      produce_image(dt, kb);
     }
     else if(options.count("program") || options.count("extract"))
     {
@@ -99,6 +114,7 @@ process_options(int argc, char *argv[],
   ;
   po::options_description dl_desc("Layout display options");
   dl_desc.add_options()
+    ("display", po::value<string>(), "produce images in PDF, SVG, or PNG format")
     ("pdf", "produce keyboard images in PDF format")
     ("svg", "produce keyboard images in SVG format")
     ("png", "produce keyboard images in PNG format")
@@ -136,26 +152,29 @@ process_options(int argc, char *argv[],
 }
 
 void
-produce_image(po::variables_map &options, hh::Keyboard::Ptr &kb)
+produce_image(DisplayType dt, hh::Keyboard::Ptr &kb)
 {
     std::string filename;
     int width = 600;
     int height = 400;
     Cairo::RefPtr<Cairo::Surface> surface;
-    if (options.count("pdf"))
+    switch (dt)
     {
-      filename = "image.pdf";
-      surface = Cairo::PdfSurface::create(filename, width, height);
-    }
-    else if (options.count("svg"))
-    {
-      filename = "image.svg";
-      surface = Cairo::SvgSurface::create(filename, width, height);
-    }
-    else if (options.count("png"))
-    {
-      filename = "image.png";
-      surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, width, height);
+      case DISPLAY_PDF:
+      {
+        filename = "image.pdf";
+        surface = Cairo::PdfSurface::create(filename, width, height);
+      }
+      case DISPLAY_SVG:
+      {
+        filename = "image.svg";
+        surface = Cairo::SvgSurface::create(filename, width, height);
+      }
+      case DISPLAY_PNG:
+      {
+        filename = "image.png";
+        surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, width, height);
+      }
     }
 
 
@@ -186,7 +205,7 @@ produce_image(po::variables_map &options, hh::Keyboard::Ptr &kb)
 
     cr->show_page();
 
-    if (options.count("png"))
+    if (dt == DISPLAY_PNG)
     {
       surface->write_to_png(filename);
     }
