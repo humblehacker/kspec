@@ -110,7 +110,7 @@ Layout:HumbleHackerReference
     KeyDef:k_1
     KeyDef:k_2
     KeyDef:k_3
-    KeyDef:k_EN height:2
+    KeyDef:kEN height:2
 
   RowDef:
     KeyDef:LCT width:1.25
