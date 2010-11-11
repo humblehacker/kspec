@@ -2,6 +2,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include "keyboard.h"
 #include "hid_usages.h"
 #include "utils.h"
@@ -46,6 +47,11 @@ COMPILER kspec
   void set_kb(kspec::Keyboard::Ptr the_kb)
   {
     kb = the_kb;
+  }
+
+  std::wstring unquote(const std::wstring &text)
+  {
+    return text.substr(1, text.length() - 2);
   }
 
 CHARACTERS
@@ -240,7 +246,7 @@ PRODUCTIONS
     ]                              (. const kspec::Usage &usage = lookup_usage(id, page);
                                       map.reset(new kspec::Map(usage, mods)); .)
     {
-      Label<loc, label>            (. map->add_label(loc, label); .)
+      Label<loc, label>            (. map->add_label(loc, unquote(label)); .)
     }
     .
 
@@ -249,7 +255,7 @@ PRODUCTIONS
     "Macro:"                       (. kspec::Map::Ptr map;
                                       macro.reset(new kspec::Macro()); .)
     {
-      Label<loc, text>             (. macro->add_label(loc, text); .)
+      Label<loc, text>             (. macro->add_label(loc, unquote(text)); .)
     }
     Map<map>                       (. macro->add_map(map); .)
     {
@@ -267,7 +273,7 @@ PRODUCTIONS
     | "momentary"                  (. mode->set_type(kspec::Mode::momentary); .)
     )
     {
-      Label<loc, text>             (. mode->add_label(loc, text); .)
+      Label<loc, text>             (. mode->add_label(loc, unquote(text)); .)
     }
     .
 

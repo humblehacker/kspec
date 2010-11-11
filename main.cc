@@ -11,7 +11,7 @@
 #include "Parser.h"
 #include "utils.h"
 #include "generate.h"
-#include "display.h"
+#include "layout.h"
 
 using namespace std;
 
@@ -40,23 +40,23 @@ main (int argc, char *argv[])
     {
       generate_code(options, kb);
     }
-    else if (options.count("display"))
+    else if (options.count("render"))
     {
-      DisplayType dt;
-      string s = options["display"].as<string>();
+      RenderType dt;
+      string s = options["render"].as<string>();
       if (s == "pdf")
-        dt = DISPLAY_PDF;
+        dt = RENDER_PDF;
       else if (s == "png")
-        dt = DISPLAY_PNG;
+        dt = RENDER_PNG;
       else if (s == "svg")
-        dt = DISPLAY_SVG;
+        dt = RENDER_SVG;
       else
       {
         boost::program_options::invalid_option_value e(s);
-        e.set_option_name("display");
+        e.set_option_name("render");
         throw e;
       }
-      display(dt, kb);
+      Layout(kb, dt).render();
     }
     else if(options.count("program") || options.count("extract"))
     {
@@ -106,9 +106,9 @@ process_options(int argc, char *argv[],
     ("template-dir,t", po::value<string>()->default_value("./templates"),
      "location of code-generation template files")
   ;
-  po::options_description dl_desc("Layout display options");
+  po::options_description dl_desc("Layout rendering options");
   dl_desc.add_options()
-    ("display", po::value<string>(), "produce images in PDF, SVG, or PNG format")
+    ("render", po::value<string>(), "produce images in PDF, SVG, or PNG format")
   ;
   po::options_description pg_desc("Programming options");
   pg_desc.add_options()

@@ -100,6 +100,7 @@ public:
   void add_label(Label::Location loc, wstring text) { _labels[loc] = Label(loc, text); }
 
   int premods() const { return _premods; }
+  const Labels  &labels() const { return _labels;   }
 
   virtual void accept(KeyboardVisitor &visitor) const;
   virtual void accept(KeyboardExternalVisitor &visitor) const;
