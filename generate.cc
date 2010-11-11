@@ -8,7 +8,7 @@
 using namespace std;
 
 void
-generate_code(po::variables_map &options, hh::Keyboard::Ptr &kb)
+generate_code(po::variables_map &options, kspec::Keyboard::Ptr &kb)
 {
   lua_State *L = luaL_newstate();
   luaL_openlibs(L);
@@ -171,10 +171,10 @@ generate(const fs::path &template_filename, const fs::path &output_dir, lua_Stat
 }
 
 void
-build_lua_environment(const hh::Keyboard &kb, lua_State *L)
+build_lua_environment(const kspec::Keyboard &kb, lua_State *L)
 {
   lua_newtable(L);
-  hh::LuaKeyboardVisitor v(L);
+  kspec::LuaKeyboardVisitor v(L);
   kb.accept(v);
   lua_setglobal(L, "kb");
 }

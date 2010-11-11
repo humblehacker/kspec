@@ -12,10 +12,10 @@ namespace fs = boost::filesystem;
 #include "keyboard.h"
 #include "options.h"
 
-void build_lua_environment(const hh::Keyboard &kb, lua_State *L);
+void build_lua_environment(const kspec::Keyboard &kb, lua_State *L);
 void generate(const fs::path &template_filename, const fs::path &output_dir,
               lua_State *L, const po::variables_map &options);
-void generate_code(po::variables_map &options, hh::Keyboard::Ptr &kb);
+void generate_code(po::variables_map &options, kspec::Keyboard::Ptr &kb);
 void go_interactive(lua_State *L);
 
 #endif // __GENERATE_H__

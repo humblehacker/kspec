@@ -5,7 +5,7 @@
 using std::wcout;
 using std::endl;
 
-namespace hh
+namespace kspec
 {
 
 bool
@@ -711,4 +711,4 @@ Usage Usage::generic_desktop_usages[] =
   {L"", 0}
 };
 
-} // namespace hh
+} // namespace kspec

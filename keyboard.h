@@ -9,8 +9,9 @@
 #include "binding.h"
 #include "keyboard_visitor.h"
 
-namespace hh
+namespace kspec
 {
+
 using std::wstring;
 
 class Keyboard;
@@ -36,7 +37,7 @@ public:
 
   const wstring  &location() const { return _location; }
   const Bindings &bindings() const { return _bindings; }
-  const Labels   &labels() const   { return _labels;   }
+  const Labels   &labels()   const { return _labels;   }
 
   void accept(KeyboardVisitor &visitor) const;
   void accept(KeyboardExternalVisitor &visitor) const;
@@ -200,9 +201,9 @@ private:
   LEDs        _leds;
 };
 
-}; // namespace hh
+}; // namespace kspec
 
-std::wostream & operator << (std::wostream &os, const hh::WStrings &strs);
+std::wostream & operator << (std::wostream &os, const kspec::WStrings &strs);
 
 
 #endif // __KEYBOARD_H__

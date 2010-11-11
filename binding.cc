@@ -1,7 +1,7 @@
 #include "binding.h"
 #include "utils.h"
 
-namespace hh
+namespace kspec
 {
 
 wstring
@@ -115,4 +115,4 @@ accept(KeyboardExternalVisitor &visitor) const
   visitor.visit(*this);
 }
 
-} // namespace hh
+} // namespace kspec

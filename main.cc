@@ -15,8 +15,8 @@
 
 using namespace std;
 
-hh::Keyboard::Ptr parse(const wstring &input_filename);
-void dump(hh::Keyboard &kb);
+kspec::Keyboard::Ptr parse(const wstring &input_filename);
+void dump(kspec::Keyboard &kb);
 bool process_options(int argc, char *argv[], po::options_description &usage,
                      po::variables_map &options);
 
@@ -33,7 +33,7 @@ main (int argc, char *argv[])
     wstring input_filename;
     string_to_wstring(options["input-file"].as<string>(), input_filename);
 
-    hh::Keyboard::Ptr kb;
+    kspec::Keyboard::Ptr kb;
     kb = parse(input_filename);
 
     if (options.count("generate-code"))
@@ -143,7 +143,7 @@ process_options(int argc, char *argv[],
 }
 
 void
-dump(hh::Keyboard &kb)
+dump(kspec::Keyboard &kb)
 {
   wcout << "Keyboard: " << kb.ident() << endl;
   wcout << "  Matrix: #rows: "  << kb.matrix().size() << endl;
@@ -151,7 +151,7 @@ dump(hh::Keyboard &kb)
   wcout << "  RowPins: " << kb.row_pins() << endl;
   wcout << "  ColPins: " << kb.col_pins() << endl;
   wcout << "Keymaps #: " << kb.maps().size() << endl;
-  for (hh::KeyMaps::const_iterator i = kb.maps().begin(); i != kb.maps().end(); ++i)
+  for (kspec::KeyMaps::const_iterator i = kb.maps().begin(); i != kb.maps().end(); ++i)
   {
     wcout << "  Keymap: " << i->first << endl;
     wcout << "    base: " << i->second->base() << endl;
@@ -160,7 +160,7 @@ dump(hh::Keyboard &kb)
   }
 }
 
-hh::Keyboard::Ptr
+kspec::Keyboard::Ptr
 parse(const wstring &input_filename)
 {
   Scanner *scanner = new Scanner(input_filename.c_str());

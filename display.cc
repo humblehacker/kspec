@@ -10,20 +10,20 @@
 
 using namespace std;
 
-class DisplayKeyboardVisitor : public hh::KeyboardExternalVisitor
+class DisplayKeyboardVisitor : public kspec::KeyboardExternalVisitor
 {
 public:
   DisplayKeyboardVisitor(DisplayType dt);
   ~DisplayKeyboardVisitor();
 
-  virtual void visit(const hh::Keyboard & kb);
-  virtual void visit(const hh::Layout & layout);
-//virtual void visit(const hh::KeyMap & keymap);
-  virtual void visit(const hh::Key & key);
-//virtual void visit(const hh::Label & label);
-//virtual void visit(const hh::Map & map);
-//virtual void visit(const hh::Macro & macro);
-//virtual void visit(const hh::Mode & mode);
+  virtual void visit(const kspec::Keyboard & kb);
+  virtual void visit(const kspec::Layout & layout);
+//virtual void visit(const kspec::KeyMap & keymap);
+  virtual void visit(const kspec::Key & key);
+//virtual void visit(const kspec::Label & label);
+//virtual void visit(const kspec::Map & map);
+//virtual void visit(const kspec::Macro & macro);
+//virtual void visit(const kspec::Mode & mode);
 
   void write_file();
 
@@ -86,7 +86,7 @@ rounded_rect(double x, double y, double width, double height)
 
 void
 DisplayKeyboardVisitor::
-visit(const hh::Keyboard & kb)
+visit(const kspec::Keyboard & kb)
 {
   kb.layout().accept(*this);
   _cr->show_page();
@@ -94,7 +94,7 @@ visit(const hh::Keyboard & kb)
 
 void
 DisplayKeyboardVisitor::
-visit(const hh::Layout & layout)
+visit(const kspec::Layout & layout)
 {
   double x = 0.0, y = 0.0;
   double h, w;
@@ -108,9 +108,9 @@ visit(const hh::Layout & layout)
   double spacing = 0.055;
   const double factor = 1.8;
 
-  foreach(const hh::Layout::RowDef &rowdef, layout.rows())
+  foreach(const kspec::Layout::RowDef &rowdef, layout.rows())
   {
-    foreach(const hh::KeyDef::Ptr &keydef, rowdef)
+    foreach(const kspec::KeyDef::Ptr &keydef, rowdef)
     {
       w = (keydef->width() - spacing) * factor;
       h = (keydef->height() - spacing) * factor;
@@ -137,7 +137,7 @@ visit(const hh::Layout & layout)
 
 void
 DisplayKeyboardVisitor::
-visit(const hh::Key & kb)
+visit(const kspec::Key & kb)
 {
 }
 
@@ -155,7 +155,7 @@ write_file()
 }
 
 void
-display(DisplayType dt, hh::Keyboard::Ptr &kb)
+display(DisplayType dt, kspec::Keyboard::Ptr &kb)
 {
     DisplayKeyboardVisitor v(dt);
     kb->accept(v);

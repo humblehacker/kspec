@@ -5,7 +5,7 @@
 
 struct lua_State;
 
-namespace hh
+namespace kspec
 {
 
 class LuaKeyboardVisitor : public KeyboardExternalVisitor
@@ -25,6 +25,6 @@ private:
   lua_State *_L;
 };
 
-} // namespace hh
+} // namespace kspec
 
 #endif // __LUA_KEYBOARD_VISITOR_H__

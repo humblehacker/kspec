@@ -7,7 +7,8 @@
 #include "boost/pointer_cast.hpp"
 #include "hid_usages.h"
 #include "keyboard_visitor.h"
-namespace hh
+
+namespace kspec
 {
 using std::wstring;
 

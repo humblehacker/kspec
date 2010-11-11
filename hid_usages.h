@@ -26,7 +26,7 @@
 
 #include <string>
 
-namespace hh
+namespace kspec
 {
 
 struct Usage
@@ -40,6 +40,6 @@ struct Usage
   bool is_modifier() const;
 };
 
-} // namespace hh
+} // namespace kspec
 
 #endif // __HID_USAGES_H__

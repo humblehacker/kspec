@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "keyboard.h"
 
-namespace hh
+namespace kspec
 {
 
 Keyboard::
@@ -101,13 +101,13 @@ accept(KeyboardExternalVisitor &visitor) const
   visitor.visit(*this);
 }
 
-} // namespace hh
+} // namespace kspec
 
 std::wostream &
-operator << (std::wostream &os, const hh::WStrings &strs)
+operator << (std::wostream &os, const kspec::WStrings &strs)
 {
   os << "[ ";
-  for (hh::WStrings::const_iterator i = strs.begin(); i != strs.end(); ++i)
+  for (kspec::WStrings::const_iterator i = strs.begin(); i != strs.end(); ++i)
     os << *i << " ";
   os << "]";
   return os;

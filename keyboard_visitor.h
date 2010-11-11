@@ -1,7 +1,7 @@
 #ifndef __KEYBOARD_VISITOR_H__
 #define __KEYBOARD_VISITOR_H__
 
-namespace hh
+namespace kspec
 {
 
 class Keyboard;
@@ -44,6 +44,6 @@ public:
   virtual void visit(const Label& mode) {}
 };
 
-} // namespace hh
+} // namespace kspec
 
 #endif // __KEYBOARD_VISITOR_H__

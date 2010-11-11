@@ -10,12 +10,12 @@ using std::cout;
 using std::endl;
 using std::hex;
 
-namespace hh
+namespace kspec
 {
 
 void
 LuaKeyboardVisitor::
-visit(const hh::Keyboard &kb)
+visit(const kspec::Keyboard &kb)
 {
   assert(lua_istable(_L, -1));
 
@@ -54,25 +54,25 @@ visit(const hh::Keyboard &kb)
     lua_newtable(_L);
     set_field(_L, "name", led->name());
     set_field(_L, "pin",  led->pin());
-    if (led->flow() == hh::LED::source)
+    if (led->flow() == kspec::LED::source)
       set_field(_L, "flow", "source");
     else
       set_field(_L, "flow", "sink");
     switch(led->std())
     {
-      case hh::LED::numlock:
+      case kspec::LED::numlock:
         set_field(_L, "std", "num_lock");
         break;
-      case hh::LED::capslock:
+      case kspec::LED::capslock:
         set_field(_L, "std", "caps_lock");
         break;
-      case hh::LED::scrolllock:
+      case kspec::LED::scrolllock:
         set_field(_L, "std", "scroll_lock");
         break;
-      case hh::LED::compose:
+      case kspec::LED::compose:
         set_field(_L, "std", "compose");
         break;
-      case hh::LED::kana:
+      case kspec::LED::kana:
         set_field(_L, "std", "kana");
         break;
     }
@@ -103,7 +103,7 @@ visit(const hh::Keyboard &kb)
 
 void
 LuaKeyboardVisitor::
-visit(const hh::KeyMap & keymap)
+visit(const kspec::KeyMap & keymap)
 {
   assert(lua_istable(_L, -1));
 //wcout << "KeyMap: " << keymap.name() << endl;
@@ -131,7 +131,7 @@ visit(const hh::KeyMap & keymap)
 
 void
 LuaKeyboardVisitor::
-visit(const hh::Key & key)
+visit(const kspec::Key & key)
 {
   assert(lua_istable(_L, -1));
 //wcout << "Key: " << key.location() << endl;
@@ -141,7 +141,7 @@ visit(const hh::Key & key)
 
   // key.labels = { where = "what", where2 = "what2" }
   lua_newtable(_L);
-  foreach(const hh::Labels::value_type &pair, key.labels())
+  foreach(const kspec::Labels::value_type &pair, key.labels())
     pair.second.accept(*this);
   lua_setfield(_L, -2, "labels");
 
@@ -168,7 +168,7 @@ visit(const hh::Key & key)
 
 void
 LuaKeyboardVisitor::
-visit(const hh::Map & map)
+visit(const kspec::Map & map)
 {
   assert(lua_istable(_L, -1));
 //wcout << "Map: " << endl;
@@ -191,7 +191,7 @@ visit(const hh::Map & map)
 
 void
 LuaKeyboardVisitor::
-visit(const hh::Macro & macro)
+visit(const kspec::Macro & macro)
 {
   assert(lua_istable(_L, -1));
 //wcout << "Macro: " << endl;
@@ -213,25 +213,25 @@ visit(const hh::Macro & macro)
 
 void
 LuaKeyboardVisitor::
-visit(const hh::Mode & mode)
+visit(const kspec::Mode & mode)
 {
   assert(lua_istable(_L, -1));
 //wcout << "Mode: " << endl;
 
   set_field(_L, "class", "Mode");
   set_field(_L, "name", mode.name());
-  if (mode.type() == hh::Mode::momentary)
+  if (mode.type() == kspec::Mode::momentary)
     set_field(_L, "type", "MOMENTARY");
-  else if (mode.type() == hh::Mode::toggle)
+  else if (mode.type() == kspec::Mode::toggle)
     set_field(_L, "type", "TOGGLE");
 }
 
 void
 LuaKeyboardVisitor::
-visit(const hh::Label &label)
+visit(const kspec::Label &label)
 {
   assert(lua_istable(_L, -1));
   set_field(_L, wstring_to_string(label.loc_as_str()), label.value());
 }
 
-} // namespace hh
+} // namespace kspec

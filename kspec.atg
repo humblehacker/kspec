@@ -10,11 +10,11 @@ using boost::lexical_cast;
 
 COMPILER kspec
 
-  hh::Keyboard::Ptr kb;
+  kspec::Keyboard::Ptr kb;
 
-  const hh::Usage &lookup_usage(const std::wstring &id, const std::wstring &page)
+  const kspec::Usage &lookup_usage(const std::wstring &id, const std::wstring &page)
   {
-    const hh::Usage &usage = hh::Usage::lookup(id, page);
+    const kspec::Usage &usage = kspec::Usage::lookup(id, page);
     if (usage.id < 2)
     {
       std::wstringstream str;
@@ -43,7 +43,7 @@ COMPILER kspec
     }
   }
 
-  void set_kb(hh::Keyboard::Ptr the_kb)
+  void set_kb(kspec::Keyboard::Ptr the_kb)
   {
     kb = the_kb;
   }
@@ -82,15 +82,15 @@ PRODUCTIONS
     .
 /* ----------------------------------------------------------------------------- */
   Layout =
-    "Layout:" ident                 (. hh::Layout::Ptr layout(new hh::Layout(t->val)); .)
+    "Layout:" ident                 (. kspec::Layout::Ptr layout(new kspec::Layout(t->val)); .)
     RowDef<*layout>
     {
       RowDef<*layout>
     }                               (. kb->add_layout(layout); .)
     .
 
-  RowDef<hh::Layout &layout> =
-    "RowDef:"                       (. hh::KeyDef::Ptr keydef; layout.new_row(); .)
+  RowDef<kspec::Layout &layout> =
+    "RowDef:"                       (. kspec::KeyDef::Ptr keydef; layout.new_row(); .)
     KeyDef<keydef>                  (. layout.add_keydef(keydef); .)
     {
       ( KeyDef<keydef>              (. layout.add_keydef(keydef); .)
@@ -98,30 +98,30 @@ PRODUCTIONS
       )
     }.
 
-  KeyDef<hh::KeyDef::Ptr &keydef> =
-    "KeyDef:" ident                 (. keydef.reset(new hh::KeyDef(t->val)); .)
+  KeyDef<kspec::KeyDef::Ptr &keydef> =
+    "KeyDef:" ident                 (. keydef.reset(new kspec::KeyDef(t->val)); .)
     ( { Width<*keydef> }
     | { Height<*keydef> }
     | { "bump" }                    (. keydef->set_bump(); .)
     ).
 
-  Gap<hh::KeyDef::Ptr &keydef> =
-    "Gap:"                          (. keydef.reset(new hh::KeyDef(L"")); keydef->set_gap(); .)
+  Gap<kspec::KeyDef::Ptr &keydef> =
+    "Gap:"                          (. keydef.reset(new kspec::KeyDef(L"")); keydef->set_gap(); .)
     {
       ident                         (. keydef->set_width(lexical_cast<double>(t->val)); .)
     }.
 
-  Width<hh::KeyDef &keydef> =
+  Width<kspec::KeyDef &keydef> =
     "width:" ident                  (. keydef.set_width(lexical_cast<double>(t->val)); .)
     .
 
-  Height<hh::KeyDef &keydef> =
+  Height<kspec::KeyDef &keydef> =
     "height:" ident                 (. keydef.set_height(lexical_cast<double>(t->val)); .)
     .
 
 /* ----------------------------------------------------------------------------- */
   Keyboard =
-    "Keyboard:" ident               (. kb.reset(new hh::Keyboard(t->val)); .)
+    "Keyboard:" ident               (. kb.reset(new kspec::Keyboard(t->val)); .)
     ( Import | Matrix )
     { Import | Layout }
     ( Import | KeyMap )
@@ -134,7 +134,7 @@ PRODUCTIONS
 
 /* ----------------------------------------------------------------------------- */
   KeyMap =
-    "KeyMap:" ident                 (. hh::KeyMap::Ptr map(new hh::KeyMap(t->val)); .)
+    "KeyMap:" ident                 (. kspec::KeyMap::Ptr map(new kspec::KeyMap(t->val)); .)
     [
       "base:" ident                 (. map->set_base(t->val); .)
     ]
@@ -146,7 +146,7 @@ PRODUCTIONS
 
 /* ----------------------------------------------------------------------------- */
   Row =
-    "Row:"                         (. hh::MatrixRowPtr row(new hh::MatrixRow()); .)
+    "Row:"                         (. kspec::MatrixRowPtr row(new kspec::MatrixRow()); .)
     ("--" | ident)                 (. row->push_back(t->val); .)
     {
       ("--" | ident)               (. row->push_back(t->val); .)
@@ -175,23 +175,23 @@ PRODUCTIONS
 
 /* ----------------------------------------------------------------------------- */
   Led =
-    "LED:"                         (. hh::LED::Ptr led; .)
-    ("num_lock"                    (. led.reset(new hh::LED(t->val,
-                                                            hh::LED::numlock)); .)
-    |"caps_lock"                   (. led.reset(new hh::LED(t->val,
-                                                            hh::LED::capslock)); .)
-    |"scroll_lock"                 (. led.reset(new hh::LED(t->val,
-                                                            hh::LED::scrolllock)); .)
-    |"compose"                     (. led.reset(new hh::LED(t->val,
-                                                            hh::LED::compose)); .)
-    |"kana"                        (. led.reset(new hh::LED(t->val,
-                                                            hh::LED::kana)); .)
-    | ident                        (. led.reset(new hh::LED(t->val)); .)
+    "LED:"                         (. kspec::LED::Ptr led; .)
+    ("num_lock"                    (. led.reset(new kspec::LED(t->val,
+                                                            kspec::LED::numlock)); .)
+    |"caps_lock"                   (. led.reset(new kspec::LED(t->val,
+                                                            kspec::LED::capslock)); .)
+    |"scroll_lock"                 (. led.reset(new kspec::LED(t->val,
+                                                            kspec::LED::scrolllock)); .)
+    |"compose"                     (. led.reset(new kspec::LED(t->val,
+                                                            kspec::LED::compose)); .)
+    |"kana"                        (. led.reset(new kspec::LED(t->val,
+                                                            kspec::LED::kana)); .)
+    | ident                        (. led.reset(new kspec::LED(t->val)); .)
     )
     "pin:" ident                   (. led->set_pin(t->val); .)
     "flow:"
-    ("source"                      (. led->set_flow(hh::LED::source); .)
-    |"sink"                        (. led->set_flow(hh::LED::sink); .)
+    ("source"                      (. led->set_flow(kspec::LED::source); .)
+    |"sink"                        (. led->set_flow(kspec::LED::sink); .)
     )                              (. kb->add_led(led); .)
     .
 
@@ -208,28 +208,28 @@ PRODUCTIONS
     ).
 
 /* ----------------------------------------------------------------------------- */
-  Key<hh::KeyMap &map> =
-    "Key:" ident                   (. hh::Key &key = map.add_key(t->val);
-                                      hh::Binding::Ptr binding; .)
+  Key<kspec::KeyMap &map> =
+    "Key:" ident                   (. kspec::Key &key = map.add_key(t->val);
+                                      kspec::Binding::Ptr binding; .)
     Binding<binding>               (. key.add_binding(binding); .)
     {
       "|" Binding<binding>         (. key.add_binding(binding); .)
     }.
 
 /* ----------------------------------------------------------------------------- */
-  Binding<hh::Binding::Ptr &binding> = (. int premods = 0; .)
+  Binding<kspec::Binding::Ptr &binding> = (. int premods = 0; .)
     [Mods<premods>]
-    (                              (. hh::Map::Ptr map; .)
+    (                              (. kspec::Map::Ptr map; .)
       Map<map>                     (. binding = map; .)
-    |                              (. hh::Macro::Ptr macro; .)
+    |                              (. kspec::Macro::Ptr macro; .)
       Macro<macro>                 (. binding = macro; .)
-    |                              (. hh::Mode::Ptr mode; .)
+    |                              (. kspec::Mode::Ptr mode; .)
       Mode<mode>                   (. binding = mode; .)
     )                              (. binding->set_premods(premods); .)
     .
 
 /* ----------------------------------------------------------------------------- */
-  Map<hh::Map::Ptr &map> =         (. hh::Label::Location loc;
+  Map<kspec::Map::Ptr &map> =      (. kspec::Label::Location loc;
                                       std::wstring label;
                                       std::wstring id;
                                       std::wstring page = L"Keyboard_and_Keypad"; .)
@@ -237,17 +237,17 @@ PRODUCTIONS
     [Mods<mods>]
     [
       "page:" ident                (. page = t->val; .)
-    ]                              (. const hh::Usage &usage = lookup_usage(id, page);
-                                      map.reset(new hh::Map(usage, mods)); .)
+    ]                              (. const kspec::Usage &usage = lookup_usage(id, page);
+                                      map.reset(new kspec::Map(usage, mods)); .)
     {
       Label<loc, label>            (. map->add_label(loc, label); .)
     }
     .
 
 /* ----------------------------------------------------------------------------- */
-  Macro<hh::Macro::Ptr &macro> =   (. hh::Label::Location loc; std::wstring text; .)
-    "Macro:"                       (. hh::Map::Ptr map;
-                                      macro.reset(new hh::Macro()); .)
+  Macro<kspec::Macro::Ptr &macro> =(. kspec::Label::Location loc; std::wstring text; .)
+    "Macro:"                       (. kspec::Map::Ptr map;
+                                      macro.reset(new kspec::Macro()); .)
     {
       Label<loc, text>             (. macro->add_label(loc, text); .)
     }
@@ -257,14 +257,14 @@ PRODUCTIONS
     }.
 
 /* ----------------------------------------------------------------------------- */
-  Mode<hh::Mode::Ptr &mode> =      (. hh::Label::Location loc; std::wstring text; .)
-    "Mode:" ident                  (. mode.reset(new hh::Mode(t->val)); .)
+  Mode<kspec::Mode::Ptr &mode> =   (. kspec::Label::Location loc; std::wstring text; .)
+    "Mode:" ident                  (. mode.reset(new kspec::Mode(t->val)); .)
     {
       "led:" ident
     }
     "type:"
-    ( "toggle"                     (. mode->set_type(hh::Mode::toggle); .)
-    | "momentary"                  (. mode->set_type(hh::Mode::momentary); .)
+    ( "toggle"                     (. mode->set_type(kspec::Mode::toggle); .)
+    | "momentary"                  (. mode->set_type(kspec::Mode::momentary); .)
     )
     {
       Label<loc, text>             (. mode->add_label(loc, text); .)
@@ -272,34 +272,35 @@ PRODUCTIONS
     .
 
 /* ----------------------------------------------------------------------------- */
-  Label<hh::Label::Location &loc, std::wstring &text> =
-    ( "tl"                         (. loc = hh::Label::top_left; .)
-    | "tc"                         (. loc = hh::Label::top_center; .)
-    | "tr"                         (. loc = hh::Label::top_right; .)
-    | "l"                          (. loc = hh::Label::center_left; .)
-    | "c"                          (. loc = hh::Label::center; .)
-    | "r"                          (. loc = hh::Label::center_right; .)
-    | "bl"                         (. loc = hh::Label::bottom_left; .)
-    | "bc"                         (. loc = hh::Label::bottom_left; .)
-    | "br")                        (. loc = hh::Label::bottom_left; .)
+  Label<kspec::Label::Location &loc, std::wstring &text> =
+    ( "tl"                         (. loc = kspec::Label::top_left; .)
+    | "tc"                         (. loc = kspec::Label::top_center; .)
+    | "tr"                         (. loc = kspec::Label::top_right; .)
+    | "l"                          (. loc = kspec::Label::center_left; .)
+    | "c"                          (. loc = kspec::Label::center; .)
+    | "r"                          (. loc = kspec::Label::center_right; .)
+    | "bl"                         (. loc = kspec::Label::bottom_left; .)
+    | "bc"                         (. loc = kspec::Label::bottom_center; .)
+    | "br"                         (. loc = kspec::Label::bottom_right; .)
+    )
     ":"
     string                         (. text = t->val; .)
     .
 
 /* ----------------------------------------------------------------------------- */
   modifier<int &mod> =
-    ( "left_shift"                 (. mod = hh::left_shift;   .)
-    | "left_alt"                   (. mod = hh::left_alt;     .)
-    | "left_control"               (. mod = hh::left_control; .)
-    | "left_gui"                   (. mod = hh::left_gui;     .)
-    | "right_shift"                (. mod = hh::right_shift;  .)
-    | "right_alt"                  (. mod = hh::right_alt;    .)
-    | "right_control"              (. mod = hh::right_control;.)
-    | "right_gui"                  (. mod = hh::right_gui;    .)
-    | "shift"                      (. mod = hh::any_shift;    .)
-    | "alt"                        (. mod = hh::any_alt;      .)
-    | "control"                    (. mod = hh::any_control;  .)
-    | "gui"                        (. mod = hh::any_gui;      .)
+    ( "left_shift"                 (. mod = kspec::left_shift;   .)
+    | "left_alt"                   (. mod = kspec::left_alt;     .)
+    | "left_control"               (. mod = kspec::left_control; .)
+    | "left_gui"                   (. mod = kspec::left_gui;     .)
+    | "right_shift"                (. mod = kspec::right_shift;  .)
+    | "right_alt"                  (. mod = kspec::right_alt;    .)
+    | "right_control"              (. mod = kspec::right_control;.)
+    | "right_gui"                  (. mod = kspec::right_gui;    .)
+    | "shift"                      (. mod = kspec::any_shift;    .)
+    | "alt"                        (. mod = kspec::any_alt;      .)
+    | "control"                    (. mod = kspec::any_control;  .)
+    | "gui"                        (. mod = kspec::any_gui;      .)
     ).
 
 /* ----------------------------------------------------------------------------- */

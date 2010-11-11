@@ -1,6 +1,6 @@
 #include "keyboard_visitor.h"
 
-namespace hh
+namespace kspec
 {
 
 KeyboardVisitor::
@@ -13,7 +13,7 @@ KeyboardExternalVisitor::
 {
 }
 
-} // namespace hh
+} // namespace kspec
 
 
 
