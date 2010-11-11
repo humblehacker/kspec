@@ -24,11 +24,11 @@
 #ifndef __KEYMAPS_H__
 #define __KEYMAPS_H__
 
+#include "Keyboard.h"
 #include "matrix.h"
 #include "binding.h"
-#include <avr/pgmspace.h>
 
-<% for i,keymap in ipairs(kb.keymaps) do %>
+<% for mapname,keymap in pairs(kb.keymaps) do %>
 extern const KeyBindingArray keymap_<%=keymap.name%>[] PROGMEM;
 <% end %>
 extern const KeyMap          default_keymap PROGMEM;

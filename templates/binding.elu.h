@@ -1,4 +1,5 @@
-/*                    The HumbleHacker Keyboard Project
+/*
+                    The HumbleHacker Keyboard Project
                  Copyright © 2008-2010, David Whetstone
                david DOT whetstone AT humblehacker DOT com
 
@@ -23,15 +24,34 @@
 #ifndef __BINDING_H__
 #define __BINDING_H__
 
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "hid_usages.h"
 #include "matrix.h"
 
 typedef struct ModeTarget ModeTarget;
 typedef struct MacroTarget MacroTarget;
 typedef struct MapTarget MapTarget;
+typedef struct ModifierTarget ModifierTarget;
 typedef struct KeyBinding KeyBinding;
 typedef struct KeyBindingArray KeyBindingArray;
+typedef struct PreMods PreMods;
 typedef const KeyBindingArray* KeyMap;
+
+/*
+ *    PreMods
+ */
+
+struct PreMods
+{
+  uint8_t std;
+  uint8_t any;
+};
+
+uint8_t PreMods__compare(const PreMods *this, uint8_t mods);
+bool PreMods__is_empty(const PreMods *this);
 
 /*
  *    KeyBinding
@@ -39,15 +59,16 @@ typedef const KeyBindingArray* KeyMap;
 
 struct KeyBinding
 {
-  enum {NOMAP, MAP, MODE, MACRO} kind;
-  Modifiers premods;
+  enum {NOMAP, MAP, MODE, MACRO, MODIFIER} kind;
+  PreMods premods;
   void *target;
 };
 
-void               KeyBinding__copy(const KeyBinding *this, KeyBinding *dst);
-const ModeTarget*  KeyBinding__get_mode_target(const KeyBinding *this);
-const MacroTarget* KeyBinding__get_macro_target(const KeyBinding *this);
-const MapTarget*   KeyBinding__get_map_target(const KeyBinding *this);
+void                  KeyBinding__copy(const KeyBinding *this, KeyBinding *dst);
+const ModeTarget*     KeyBinding__get_mode_target(const KeyBinding *this);
+const MacroTarget*    KeyBinding__get_macro_target(const KeyBinding *this);
+const MapTarget*      KeyBinding__get_map_target(const KeyBinding *this);
+const ModifierTarget* KeyBinding__get_modifier_target(const KeyBinding *this);
 
 /*
  *    KeyBindingArray
@@ -84,8 +105,17 @@ struct ModeTarget
 
 struct MapTarget
 {
-  Modifiers modifiers;
+  uint8_t modifiers;
   Usage usage;
+};
+
+/*
+ *    ModifierTarget
+ */
+
+struct ModifierTarget
+{
+  Modifier modifier;
 };
 
 /*
@@ -103,13 +133,11 @@ const MapTarget* MacroTarget__get_map_target(const MacroTarget *this, uint8_t in
 /*
  *    Binding declarations
  */
-
 <% for mapname,keymap in pairs(kb.keymaps) do
      for location,key in pairs(keymap.keys) do %>
-extern const KeyBinding <%= keymap.name %>_<%= key.location %>[] PROGMEM;
-<%   end
+extern const KeyBinding <%= keymap.name %>_<%= normalize_identifier(key.location) %>[] PROGMEM;<%
+     end
    end
 %>
-
 
 #endif // __BINDING_H__

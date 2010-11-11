@@ -21,7 +21,9 @@
 
 */
 
+#include <string.h>
 #include "binding.h"
+#include "keymaps.h"
 
 /*
  *   PreMods
@@ -177,7 +179,11 @@ const ModeTarget     <%= ident %> PROGMEM = { <%= string.upper(binding.type) %>,
 const KeyBinding <%= keymap.name %>_<%= key.location %>[] PROGMEM =
 {<%    for i,binding in ipairs(key.bindings) do %>
   { <%   if binding.class == 'Map' then
+           if binding.usage.is_modifier then
+    %>MODIFIER, <%
+           else
     %>MAP, <%
+           end
          elseif binding.class == 'Macro' then
     %>MACRO, <%
          elseif binding.class == 'Mode' then

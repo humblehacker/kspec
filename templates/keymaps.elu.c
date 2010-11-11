@@ -40,19 +40,16 @@ const KeyBindingArray keymap_<%=keymap.name%>[] =
 <%   lastcol = #flipped_matrix
      for icol,col in ipairs(flipped_matrix) do
 %>
-  /* col: <%=icol%> */<%
+  /* col: <%=icol-1%> */<%
        last_row = 0
        for irow,location in ipairs(col) do
          last_row = irow %>
-  /* row:<%=irow%> loc:<%=location%> */ <%
+  /* row:<%=irow-1%> loc:<%=location%> */ <%
          relevant_keymap, key = lookup_key(keymap, location)
          if key == nil then %>{0, NULL}<%
          elseif #key.bindings == 0 then %>{0, NULL} /* EMPTY DEFINITION! */<%
-         else %>{<%=#key.bindings%>, &<%=relevant_keymap.name%>_<%=key.location%>[0]}<%
+         else %>{<%=#key.bindings%>, &<%=relevant_keymap.name%>_<%=normalize_identifier(key.location)%>[0]}<%
          end %>,<%
-       end
-       for i=(last_row+1),7 do %>
-  /* ---:<%=i%> loc:-- */ {0, NULL},<%
        end %>
 <%   end %>
 };

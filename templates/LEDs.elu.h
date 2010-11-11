@@ -54,10 +54,10 @@
       /* Macros: */
 
         /** LED masks. */
-<% 
+<%
    stdleds = {}
    otherleds = {}
-   for i,led in ipairs(kb.leds) do 
+   for i,led in ipairs(kb.leds) do
      if led.std == nil then
        otherleds[#otherleds+1] = led
      end
@@ -70,26 +70,36 @@
           LED_COMPOSE = (1<<3),
           LED_KANA = (1<<4),
 <% for i,led in ipairs(otherleds) do %>
-			 LED_<%=string.upper(led.name)%> = (1<<<%=i+4%>),
+          LED_<%=string.upper(led.name)%> = (1<<<%=i+4%>),
 <% end %>
         };
 
-			/** LED mask for all the LEDs on the board. */
-			#define LEDS_ALL_LEDS    (0<% 
-   for i,led in ipairs(kb.leds) do 
+<% for i=1,4 do
+     if kb.leds[i] ~= nil then %>
+        #define LEDS_LED<%=i%> LED_<%=string.upper(kb.leds[i].name)%><%
+     end
+   end
+%>
+
+        /** LED mask for all standard keyboard LEDs */
+        #define LED_ALL_STD    (LED_NUM_LOCK | LED_CAPS_LOCK | LED_SCROLL_LOCK | LED_COMPOSE | LED_KANA)
+
+			  /** LED mask for all the LEDs on the board. */
+			  #define LEDS_ALL_LEDS  (0<%
+   for i,led in ipairs(kb.leds) do
      %> | LED_<%=string.upper(led.name)%><%
    end%>)
 
-			/** LED mask for the none of the board LEDs */
-			#define LEDS_NO_LEDS     0
+			  /** LED mask for the none of the board LEDs */
+			  #define LEDS_NO_LEDS    0
 
 		/* Inline Functions: */
 		#if !defined(__DOXYGEN__)
 			static inline void LEDs_Init(void)
 			{
- <% for i,led in ipairs(kb.leds) do 
+ <% for i,led in ipairs(kb.leds) do
       port = string.upper(string.sub(led.pin,2,2))
-      pin  = string.sub(led.pin,3,3) 
+      pin  = string.sub(led.pin,3,3)
       name = 'LED_' .. string.upper(led.name) %>
            // <%=name%>
            DDR<%=port%> |= (1<<<%=pin%>); // set pin as output
@@ -103,9 +113,9 @@
 
 			static inline void LEDs_TurnOnLEDs(const uint8_t LEDMask)
 			{
-<% for i,led in ipairs(kb.leds) do 
-      port = "PORT_" .. string.upper(string.sub(led.pin,2,2))
-      pin  = string.sub(led.pin,3,3) 
+<% for i,led in ipairs(kb.leds) do
+      port = "PORT" .. string.upper(string.sub(led.pin,2,2))
+      pin  = string.sub(led.pin,3,3)
       name = 'LED_' .. string.upper(led.name) %>
            if (LEDMask & <%=name%>)
 <%    if led.flow == 'sink' then %>
@@ -118,10 +128,9 @@
 
 			static inline void LEDs_TurnOffLEDs(const uint8_t LEDMask)
 			{
-<% for i,led in ipairs(kb.leds) do 
-      print(led.flow)
-      port = "PORT_" .. string.upper(string.sub(led.pin,2,2))
-      pin  = string.sub(led.pin,3,3) 
+<% for i,led in ipairs(kb.leds) do
+      port = "PORT" .. string.upper(string.sub(led.pin,2,2))
+      pin  = string.sub(led.pin,3,3)
       name = 'LED_' .. string.upper(led.name) %>
            if (LEDMask & <%=name%>)
 <%    if led.flow == 'sink' then %>
@@ -146,9 +155,9 @@
 
 			static inline void LEDs_ToggleLEDs(const uint8_t LEDMask)
 			{
-<% for i,led in ipairs(kb.leds) do 
-      port = "PORT_" .. string.upper(string.sub(led.pin,2,2))
-      pin  = string.sub(led.pin,3,3) 
+<% for i,led in ipairs(kb.leds) do
+      port = "PORT" .. string.upper(string.sub(led.pin,2,2))
+      pin  = string.sub(led.pin,3,3)
       name = 'LED_' .. string.upper(led.name) %>
            if (LEDMask & <%=name%>)
              <%=port%> ^= ~(1<<<%=pin%>);
@@ -159,9 +168,9 @@
 			static inline uint8_t LEDs_GetLEDs(void)
 			{
            uint8_t result = 0;
-<% for i,led in ipairs(kb.leds) do 
-      port = "PORT_" .. string.upper(string.sub(led.pin,2,2))
-      pin  = string.sub(led.pin,3,3) 
+<% for i,led in ipairs(kb.leds) do
+      port = "PORT" .. string.upper(string.sub(led.pin,2,2))
+      pin  = string.sub(led.pin,3,3)
       name = 'LED_' .. string.upper(led.name) %>
 <%    if led.flow == 'sink' then %>
            if ((<%=port%> & ~(1<<<%=pin%>)) == <%=port%>)
