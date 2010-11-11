@@ -6,6 +6,7 @@ libs = ['lua',
         'cairo',
         'cairomm-1.0',
         'boost_system-mt', 
+        'boost_regex-mt', 
         'boost_filesystem-mt',
         'boost_program_options-mt'] 
 
