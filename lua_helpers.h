@@ -2,8 +2,8 @@
 #define __LUA_HELPERS_H__
 
 #include "boost/foreach.hpp"
-#if !defined(foreach)
-#define foreach BOOST_FOREACH
+#if !defined(for_each)
+#define for_each BOOST_FOREACH
 #endif
 #include <cassert>
 
@@ -69,7 +69,7 @@ set_array(lua_State *L, const std::string &name, const ArrayT& source)
 
   lua_newtable(L);
   int index = 1;
-  foreach(const typename ArrayT::value_type &val, source)
+  for_each(const typename ArrayT::value_type &val, source)
   {
     set_field(L, index, to_string(val));
     ++index;

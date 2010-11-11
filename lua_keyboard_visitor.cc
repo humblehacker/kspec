@@ -29,12 +29,12 @@ visit(const kspec::Keyboard &kb)
   set_field(_L, "col_count", (int)kb.matrix().front()->size());
   lua_newtable(_L);
   int row_index = 1, col_index;
-  foreach(const MatrixRowPtr &row, kb.matrix())
+  for_each(const MatrixRowPtr &row, kb.matrix())
   {
     col_index = 1;
     lua_pushnumber(_L, row_index++);
     lua_newtable(_L);
-    foreach(const wstring &location, *row)
+    for_each(const wstring &location, *row)
     {
       lua_pushnumber(_L, col_index++);
       lua_pushstring(_L, wstring_to_string(location).c_str());
@@ -48,7 +48,7 @@ visit(const kspec::Keyboard &kb)
   // kb.leds = { led1, led2 }
   lua_newtable(_L);
   int index = 1;
-  foreach(const LED::Ptr &led, kb.leds())
+  for_each(const LED::Ptr &led, kb.leds())
   {
     lua_pushnumber(_L, index++);
     lua_newtable(_L);
@@ -91,7 +91,7 @@ visit(const kspec::Keyboard &kb)
 
   // kb.keymaps = { "name1" = keymap1, "name2" = keymap2, ... }
   lua_newtable(_L);
-  foreach(const KeyMaps::value_type &keymap, kb.maps())
+  for_each(const KeyMaps::value_type &keymap, kb.maps())
   {
     lua_pushstring(_L, wstring_to_string(keymap.first).c_str());
     lua_newtable(_L);
@@ -119,7 +119,7 @@ visit(const kspec::KeyMap & keymap)
 
   // keymap.keys = { "location2" = key1, "location2" = key2, ... }
   lua_newtable(_L);
-  foreach(const Keys::value_type &key, keymap.keys())
+  for_each(const Keys::value_type &key, keymap.keys())
   {
     lua_pushstring(_L, wstring_to_string(key.first).c_str());
     lua_newtable(_L);
@@ -141,14 +141,14 @@ visit(const kspec::Key & key)
 
   // key.labels = { where = "what", where2 = "what2" }
   lua_newtable(_L);
-  foreach(const kspec::Labels::value_type &pair, key.labels())
+  for_each(const kspec::Labels::value_type &pair, key.labels())
     pair.second.accept(*this);
   lua_setfield(_L, -2, "labels");
 
   // key.bindings = { binding1, binding2, ... }
   lua_newtable(_L);
   int array_index = 1;
-  foreach(const Binding::Ptr &binding, key.bindings())
+  for_each(const Binding::Ptr &binding, key.bindings())
   {
     lua_pushnumber(_L, array_index++);
     lua_newtable(_L);
@@ -201,7 +201,7 @@ visit(const kspec::Macro & macro)
   // macro.maps = { map1, map2, ... }
   lua_newtable(_L);
   int array_index = 1;
-  foreach(const Map::Ptr &map, macro.maps())
+  for_each(const Map::Ptr &map, macro.maps())
   {
     lua_pushnumber(_L, array_index++);
     lua_newtable(_L);

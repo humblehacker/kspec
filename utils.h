@@ -3,8 +3,8 @@
 
 #include <string>
 #include "boost/foreach.hpp"
-#if !defined(foreach)
-#define foreach BOOST_FOREACH
+#if !defined(for_each)
+#define for_each BOOST_FOREACH
 #endif
 
 void string_to_wstring(const std::string &src, std::wstring &dst);

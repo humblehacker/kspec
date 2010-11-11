@@ -21,7 +21,7 @@ accept(KeyboardVisitor &visitor) const
   if (_layout)
     visitor.visit(*_layout);
 
-  foreach(const KeyMaps::value_type &keymap, _maps)
+  for_each(const KeyMaps::value_type &keymap, _maps)
     keymap.second->accept(visitor);
 }
 
@@ -46,7 +46,7 @@ KeyMap::
 accept(KeyboardVisitor &visitor) const
 {
   visitor.visit(*this);
-  foreach(const Keys::value_type &key, _keys)
+  for_each(const Keys::value_type &key, _keys)
     key.second.accept(visitor);
 }
 
@@ -62,9 +62,9 @@ Key::
 accept(KeyboardVisitor &visitor) const
 {
   visitor.visit(*this);
-  foreach(const Labels::value_type &pair, _labels)
+  for_each(const Labels::value_type &pair, _labels)
     pair.second.accept(visitor);
-  foreach(const Binding::Ptr &binding, _bindings)
+  for_each(const Binding::Ptr &binding, _bindings)
     binding->accept(visitor);
 }
 

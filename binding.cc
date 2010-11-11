@@ -66,7 +66,7 @@ Macro::
 accept(KeyboardVisitor &visitor) const
 {
   visitor.visit(*this);
-  foreach(const Maps::value_type &map, _maps)
+  for_each(const Maps::value_type &map, _maps)
     map->accept(visitor);
 }
 

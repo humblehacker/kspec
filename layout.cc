@@ -36,9 +36,9 @@ calculate_layout()
   double x = 1.0, y = 2.0;
 
   Cairo::Rectangle rect;
-  foreach(const kspec::Layout::RowDef &rowdef, _kb->layout().rows())
+  for_each(const kspec::Layout::RowDef &rowdef, _kb->layout().rows())
   {
-    foreach(const kspec::KeyDef::Ptr &keydef, rowdef)
+    for_each(const kspec::KeyDef::Ptr &keydef, rowdef)
     {
       rect.x = x;
       rect.y = y;
@@ -66,9 +66,9 @@ render_empty_keyboard()
   _cr->save();
   _cr->set_source_rgb(0.5, 0.5, 0.5);
 
-  foreach(const kspec::Layout::RowDef &rowdef, _kb->layout().rows())
+  for_each(const kspec::Layout::RowDef &rowdef, _kb->layout().rows())
   {
-    foreach(const kspec::KeyDef::Ptr &keydef, rowdef)
+    for_each(const kspec::KeyDef::Ptr &keydef, rowdef)
     {
       Cairo::Rectangle rect = _keys[keydef->ident()];
       rounded_rect(rect.x, rect.y, rect.width, rect.height);
@@ -93,7 +93,7 @@ render()
 
   _cr->get_text_extents("Xyj", _max_extents);
 
-  foreach(const kspec::KeyMaps::value_type &keymap, _kb->maps())
+  for_each(const kspec::KeyMaps::value_type &keymap, _kb->maps())
   {
     render_empty_keyboard();
     std::wstring name;
@@ -122,7 +122,7 @@ render(const kspec::KeyMap &keymap, std::wstring &name)
     name += L" <- ";
   name += keymap.name();
 
-  foreach(const kspec::Keys::value_type &key, keymap.keys())
+  for_each(const kspec::Keys::value_type &key, keymap.keys())
   {
     render(key.second);
   }
@@ -144,9 +144,9 @@ render(const kspec::Key &key)
 
   rounded_rect(rect.x, rect.y, rect.width, rect.height);
   _cr->stroke();
-  foreach(const kspec::Bindings::value_type &binding, key.bindings())
+  for_each(const kspec::Bindings::value_type &binding, key.bindings())
   {
-    foreach(const kspec::Labels::value_type &label, binding->labels())
+    for_each(const kspec::Labels::value_type &label, binding->labels())
     {
       render(label.second, rect);
     }
