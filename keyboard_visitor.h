@@ -5,6 +5,7 @@ namespace hh
 {
 
 class Keyboard;
+class Layout;
 class KeyMap;
 class Key;
 class Binding;
@@ -18,6 +19,7 @@ class KeyboardVisitor
 public:
   virtual ~KeyboardVisitor();
   virtual void visit(const Keyboard & keyboard) = 0;
+  virtual void visit(const Layout& keymap) {}
   virtual void visit(const KeyMap & keymap) {}
   virtual void visit(const Key & key) {}
   virtual void visit(const Binding & binding) {}
@@ -32,6 +34,7 @@ class KeyboardExternalVisitor
 public:
   virtual ~KeyboardExternalVisitor();
   virtual void visit(const Keyboard & keyboard) = 0;
+  virtual void visit(const Layout& keymap) {}
   virtual void visit(const KeyMap & keymap) {}
   virtual void visit(const Key & key) {}
   virtual void visit(const Binding & binding) {}

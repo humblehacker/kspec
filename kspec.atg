@@ -1,8 +1,12 @@
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
+#include <boost/lexical_cast.hpp>
 #include "keyboard.h"
 #include "hid_usages.h"
 #include "utils.h"
+
+using boost::lexical_cast;
 
 COMPILER kspec
 
@@ -23,6 +27,27 @@ COMPILER kspec
     return usage;
   }
 
+  void import(const std::wstring &quoted_filename)
+  {
+    std::wstring filename = quoted_filename.substr(1, quoted_filename.length() - 2);
+
+    Scanner *scanner = new Scanner(filename.c_str());
+    Parser  *parser  = new Parser(scanner);
+    parser->set_kb(kb);
+    parser->Parse();
+    if (parser->errors->count)
+    {
+      std::stringstream msg;
+      msg << "Parse failed with " << parser->errors->count << " errors.";
+      throw std::runtime_error(msg.str().c_str());
+    }
+  }
+
+  void set_kb(hh::Keyboard::Ptr the_kb)
+  {
+    kb = the_kb;
+  }
+
 CHARACTERS
   letter  = 'A' .. 'Z' + 'a' .. 'z'.
   digit   = '0' .. '9'.
@@ -30,13 +55,13 @@ CHARACTERS
   lf      = '\n'.
   tab     = '\t'.
   id_ch   = letter + digit + "`~-_!@#$%^&*()+={}[]/?;.,".
-  esc_ch  = ":<>'\"\\|".
+  esc_ch  = ":<>'\"\\|#".
   stringCh  = ANY - '"' - '\\' - cr - lf.
   charCh    = ANY - '\'' - '\\' - cr - lf.
   printable =  '\u0020' .. '\u007e'.
 
 TOKENS
-  ident     = (id_ch | "\\" esc_ch) {id_ch | "\\" esc_ch}.
+  ident     = (id_ch | "_" esc_ch) {id_ch | "_" esc_ch}.
   string    = '"' { stringCh | '\\' printable } '"'.
   badString = '"' { stringCh | '\\' printable } (cr | lf).
 
@@ -48,13 +73,60 @@ IGNORE cr + lf + tab
 PRODUCTIONS
 /* ----------------------------------------------------------------------------- */
   kspec =
-    Keyboard.
+    ( Keyboard | Matrix | Layout | KeyMap ).
+
+
+/* ----------------------------------------------------------------------------- */
+  Import =
+    "import" string                 (. import(t->val); .)
+    .
+/* ----------------------------------------------------------------------------- */
+  Layout =
+    "Layout:" ident                 (. hh::Layout::Ptr layout(new hh::Layout(t->val)); .)
+    RowDef<*layout>
+    {
+      RowDef<*layout>
+    }                               (. kb->add_layout(layout); .)
+    .
+
+  RowDef<hh::Layout &layout> =
+    "RowDef:"                       (. hh::KeyDef::Ptr keydef; layout.new_row(); .)
+    KeyDef<keydef>                  (. layout.add_keydef(keydef); .)
+    {
+      ( KeyDef<keydef>              (. layout.add_keydef(keydef); .)
+      | Gap<keydef>                 (. layout.add_keydef(keydef); .)
+      )
+    }.
+
+  KeyDef<hh::KeyDef::Ptr &keydef> =
+    "KeyDef:" ident                 (. keydef.reset(new hh::KeyDef(t->val)); .)
+    ( { Width<*keydef> }
+    | { Height<*keydef> }
+    | { "bump" }                    (. keydef->set_bump(); .)
+    ).
+
+  Gap<hh::KeyDef::Ptr &keydef> =
+    "Gap:"                          (. keydef.reset(new hh::KeyDef(L"")); keydef->set_gap(); .)
+    {
+      ident                         (. keydef->set_width(lexical_cast<double>(t->val)); .)
+    }.
+
+  Width<hh::KeyDef &keydef> =
+    "width:" ident                  (. keydef.set_width(lexical_cast<double>(t->val)); .)
+    .
+
+  Height<hh::KeyDef &keydef> =
+    "height:" ident                 (. keydef.set_height(lexical_cast<double>(t->val)); .)
+    .
 
 /* ----------------------------------------------------------------------------- */
   Keyboard =
     "Keyboard:" ident               (. kb.reset(new hh::Keyboard(t->val)); .)
-    Matrix
-    KeyMap {KeyMap}.
+    ( Import | Matrix )
+    { Import | Layout }
+    ( Import | KeyMap )
+    { ( Import | KeyMap ) }
+    .
 
 /* ----------------------------------------------------------------------------- */
   Matrix =
@@ -104,15 +176,15 @@ PRODUCTIONS
 /* ----------------------------------------------------------------------------- */
   Led =
     "LED:"                         (. hh::LED::Ptr led; .)
-    ("num_lock"                    (. led.reset(new hh::LED(t->val, 
+    ("num_lock"                    (. led.reset(new hh::LED(t->val,
                                                             hh::LED::numlock)); .)
-    |"caps_lock"                   (. led.reset(new hh::LED(t->val, 
+    |"caps_lock"                   (. led.reset(new hh::LED(t->val,
                                                             hh::LED::capslock)); .)
-    |"scroll_lock"                 (. led.reset(new hh::LED(t->val, 
+    |"scroll_lock"                 (. led.reset(new hh::LED(t->val,
                                                             hh::LED::scrolllock)); .)
-    |"compose"                     (. led.reset(new hh::LED(t->val, 
+    |"compose"                     (. led.reset(new hh::LED(t->val,
                                                             hh::LED::compose)); .)
-    |"kana"                        (. led.reset(new hh::LED(t->val, 
+    |"kana"                        (. led.reset(new hh::LED(t->val,
                                                             hh::LED::kana)); .)
     | ident                        (. led.reset(new hh::LED(t->val)); .)
     )

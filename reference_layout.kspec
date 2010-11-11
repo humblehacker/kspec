@@ -1,0 +1,132 @@
+Layout:HumbleHackerReference
+
+  RowDef:
+    KeyDef:ESC
+    Gap:
+    KeyDef:F1
+    KeyDef:F2
+    KeyDef:F3
+    KeyDef:F4
+    Gap:0.25
+    KeyDef:F5
+    KeyDef:F6
+    KeyDef:F7
+    KeyDef:F8
+    Gap:0.25
+    KeyDef:F9
+    KeyDef:F10
+    KeyDef:F11
+    KeyDef:F12
+    Gap:0.5
+    KeyDef:PRS
+    KeyDef:SCL
+    KeyDef:PAU
+
+  RowDef:
+    KeyDef:_`_
+    KeyDef:1
+    KeyDef:2
+    KeyDef:3
+    KeyDef:4
+    KeyDef:5
+    KeyDef:6
+    KeyDef:7
+    KeyDef:8
+    KeyDef:9
+    KeyDef:0
+    KeyDef:_-_
+    KeyDef:_=_
+    KeyDef:BAK width:1.5
+    Gap:0.5
+    KeyDef:INS
+    KeyDef:HME
+    KeyDef:PUP
+    Gap:0.5
+    KeyDef:NUM
+    KeyDef:k_/
+    KeyDef:k_*
+    KeyDef:k_-
+
+  RowDef:
+    KeyDef:TAB width:1.5
+    KeyDef:Q
+    KeyDef:W
+    KeyDef:E
+    KeyDef:R
+    KeyDef:T
+    KeyDef:Y
+    KeyDef:U
+    KeyDef:I
+    KeyDef:O
+    KeyDef:P
+    KeyDef:_[_
+    KeyDef:_]_
+    KeyDef:_\_
+    Gap:0.5
+    KeyDef:DEL
+    KeyDef:END
+    KeyDef:PDN
+    Gap:0.5
+    KeyDef:k_7
+    KeyDef:k_8
+    KeyDef:k_9
+    KeyDef:k_+ height:2
+
+  RowDef:
+    KeyDef:CAP width:1.75
+    KeyDef:A
+    KeyDef:S
+    KeyDef:D
+    KeyDef:F
+    KeyDef:G
+    KeyDef:H
+    KeyDef:J
+    KeyDef:K
+    KeyDef:L
+    KeyDef:_;_
+    KeyDef:_'_
+    KeyDef:ENT width:1.75
+    Gap:4
+    KeyDef:k_4
+    KeyDef:k_5
+    KeyDef:k_6
+
+  RowDef:
+    KeyDef:LSH width:2.5
+    KeyDef:Z
+    KeyDef:X
+    KeyDef:C
+    KeyDef:V
+    KeyDef:B
+    KeyDef:N
+    KeyDef:M
+    KeyDef:_,_
+    KeyDef:_._
+    KeyDef:_/_
+    KeyDef:RSH width:2
+    Gap:1.5
+    KeyDef:UP
+    Gap:1.5
+    KeyDef:k_1
+    KeyDef:k_2
+    KeyDef:k_3
+    KeyDef:k_EN height:2
+
+  RowDef:
+    KeyDef:LCT width:1.25
+    KeyDef:LGU width:1.25
+    KeyDef:LAL width:1.25
+    KeyDef:SPC width:6
+    KeyDef:RAL width:1.25
+    KeyDef:RGU width:1.25
+    KeyDef:APP
+    KeyDef:RCT width:1.25
+    Gap:.5
+    KeyDef:LFT
+    KeyDef:DWN
+    KeyDef:RGT
+    Gap:.5
+    KeyDef:k_0 width:2
+    KeyDef:k_.
+
+

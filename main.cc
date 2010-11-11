@@ -7,14 +7,11 @@
 #include <cassert>
 #include <string>
 
-#include <cairommconfig.h>
-#include <cairomm/context.h>
-#include <cairomm/surface.h>
-
 #include "Scanner.h"
 #include "Parser.h"
 #include "utils.h"
 #include "generate.h"
+#include "display.h"
 
 using namespace std;
 
@@ -22,8 +19,6 @@ hh::Keyboard::Ptr parse(const wstring &input_filename);
 void dump(hh::Keyboard &kb);
 bool process_options(int argc, char *argv[], po::options_description &usage,
                      po::variables_map &options);
-enum DisplayType { DISPLAY_PDF, DISPLAY_SVG, DISPLAY_PNG };
-void produce_image(DisplayType dt, hh::Keyboard::Ptr &kb);
 
 int
 main (int argc, char *argv[])
@@ -61,7 +56,7 @@ main (int argc, char *argv[])
         e.set_option_name("display");
         throw e;
       }
-      produce_image(dt, kb);
+      display(dt, kb);
     }
     else if(options.count("program") || options.count("extract"))
     {
@@ -78,7 +73,6 @@ main (int argc, char *argv[])
   catch(exception &e)
   {
     cerr << e.what() << endl;
-    cout << usage << endl;
     return 1;
   }
   catch(const char *e)
@@ -115,9 +109,6 @@ process_options(int argc, char *argv[],
   po::options_description dl_desc("Layout display options");
   dl_desc.add_options()
     ("display", po::value<string>(), "produce images in PDF, SVG, or PNG format")
-    ("pdf", "produce keyboard images in PDF format")
-    ("svg", "produce keyboard images in SVG format")
-    ("png", "produce keyboard images in PNG format")
   ;
   po::options_description pg_desc("Programming options");
   pg_desc.add_options()
@@ -152,68 +143,6 @@ process_options(int argc, char *argv[],
 }
 
 void
-produce_image(DisplayType dt, hh::Keyboard::Ptr &kb)
-{
-    std::string filename;
-    int width = 600;
-    int height = 400;
-    Cairo::RefPtr<Cairo::Surface> surface;
-    switch (dt)
-    {
-      case DISPLAY_PDF:
-      {
-        filename = "image.pdf";
-        surface = Cairo::PdfSurface::create(filename, width, height);
-      }
-      case DISPLAY_SVG:
-      {
-        filename = "image.svg";
-        surface = Cairo::SvgSurface::create(filename, width, height);
-      }
-      case DISPLAY_PNG:
-      {
-        filename = "image.png";
-        surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, width, height);
-      }
-    }
-
-
-    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(surface);
-
-    cr->save(); // save the state of the context
-    cr->set_source_rgb(0.86, 0.85, 0.47);
-    cr->paint();    // fill image with the color
-    cr->restore();  // color is back to black now
-
-    cr->save();
-    // draw a border around the image
-    cr->set_line_width(20.0);    // make the line wider
-    cr->rectangle(0.0, 0.0, cairo_image_surface_get_width(surface->cobj()), height);
-    cr->stroke();
-
-    cr->set_source_rgba(0.0, 0.0, 0.0, 0.7);
-    // draw a circle in the center of the image
-    cr->arc(width / 2.0, height / 2.0,
-            height / 4.0, 0.0, 2.0 * M_PI);
-    cr->stroke();
-
-    // draw a diagonal line
-    cr->move_to(width / 4.0, height / 4.0);
-    cr->line_to(width * 3.0 / 4.0, height * 3.0 / 4.0);
-    cr->stroke();
-    cr->restore();
-
-    cr->show_page();
-
-    if (dt == DISPLAY_PNG)
-    {
-      surface->write_to_png(filename);
-    }
-
-    std::cout << "Wrote file \"" << filename << "\"" << std::endl;
-}
-
-void
 dump(hh::Keyboard &kb)
 {
   wcout << "Keyboard: " << kb.ident() << endl;
@@ -237,7 +166,12 @@ parse(const wstring &input_filename)
   Scanner *scanner = new Scanner(input_filename.c_str());
   Parser  *parser  = new Parser(scanner);
   parser->Parse();
-  cerr << parser->errors->count << " errors detected" << endl;
+  if (parser->errors->count)
+  {
+    std::stringstream msg;
+    msg << "Parse failed with " << parser->errors->count << " errors.";
+    throw std::runtime_error(msg.str().c_str());
+  }
   return parser->kb;
 }
 
