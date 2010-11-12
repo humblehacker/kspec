@@ -1,9 +1,11 @@
 #ifndef __LAYOUT_H__
 #define __LAYOUT_H__
 
+#include <string>
 #include <cairommconfig.h>
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
+#include <pangomm.h>
 
 #include "keyboard.h"
 
@@ -19,9 +21,10 @@ public:
 private:
   void render_empty_keyboard();
   void calculate_layout();
-  void render(const kspec::Key &key);
-  void render(const kspec::KeyMap &keymap, std::wstring &name);
-  void render(const kspec::Label &label, const Cairo::Rectangle &rect);
+  void calculate_max_extents(Pango::Layout &layout);
+  void render(const kspec::Key &key, Pango::Layout &layout);
+  void render(const kspec::KeyMap &keymap, std::wstring &name, Pango::Layout &layout);
+  void render(const kspec::Label &label, const Cairo::Rectangle &rect, Pango::Layout &layout);
 
   void write_file();
   void rounded_rect(double x, double y, double width, double height);
@@ -32,9 +35,11 @@ private:
   std::string _filename;
   Cairo::RefPtr<Cairo::Surface> _surface;
   Cairo::RefPtr<Cairo::Context> _cr;
-  static const double _scale_factor = 1.8;
-  static const double _margin = 0.09;
-  Cairo::TextExtents _max_extents;
+  static const double _scale_factor = 30;
+  static const double _margin = 1;
+  static const double _font_size = 7;
+  Pango::Rectangle _max_extents;
+//Cairo::TextExtents _max_extents;
   double _width;
   double _height;
   std::map<std::wstring, Cairo::Rectangle> _keys;

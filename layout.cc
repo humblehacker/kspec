@@ -3,12 +3,15 @@
 
 #include "utils.h"
 #include "layout.h"
+#include <pangomm/init.h>
+
+//#define DEBUG_LAYOUT
 
 using namespace std;
 
 Layout::
 Layout(kspec::Keyboard::Ptr kb, RenderType rt)
-  : _kb(kb), _render_type(rt), _width(600), _height(400)
+  : _kb(kb), _render_type(rt), _width(792), _height(612)
 {
   switch (rt)
   {
@@ -26,6 +29,9 @@ Layout(kspec::Keyboard::Ptr kb, RenderType rt)
       break;
   }
   _cr = Cairo::Context::create(_surface);
+
+  Glib::init();
+  Pango::init();
 }
 
 void
@@ -33,7 +39,7 @@ Layout::
 calculate_layout()
 {
   static double spacing = 0.055;
-  double x = 1.0, y = 2.0;
+  double x = 1.0 * _scale_factor, y = 2.0 * _scale_factor;
 
   Cairo::Rectangle rect;
   for_each(const kspec::Layout::RowDef &rowdef, _kb->layout().rows())
@@ -53,7 +59,7 @@ calculate_layout()
         _keys[keydef->ident()] = rect;
       x += rect.width + (spacing * _scale_factor);
     }
-    x = 1.0;
+    x = 1.0 * _scale_factor;
     y += 1 * _scale_factor;
     cout << endl;
   }
@@ -81,25 +87,39 @@ render_empty_keyboard()
 
 void
 Layout::
+calculate_max_extents(Pango::Layout &layout)
+{
+  layout.set_text("j");
+  _max_extents = layout.get_pixel_ink_extents();
+}
+
+void
+Layout::
 render()
 {
   calculate_layout();
 
   _cr->save();
-  _cr->select_font_face("Courier", Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-  _cr->set_font_size(0.5);
   _cr->set_line_width(0.01);
-  _cr->scale(10.0, 10.0);
+//_cr->scale(10.0, 10.0);
 
-  _cr->get_text_extents("Xyj", _max_extents);
+  Glib::RefPtr<Pango::Layout> pango_layout = Pango::Layout::create(_cr);
+  Pango::FontDescription desc("Courier");
+  desc.set_absolute_size(_font_size * PANGO_SCALE);
+  pango_layout->set_font_description(desc);
+  pango_layout->set_wrap(Pango::WRAP_WORD_CHAR);
+
+  calculate_max_extents(*pango_layout.operator->());
 
   for_each(const kspec::KeyMaps::value_type &keymap, _kb->maps())
   {
     render_empty_keyboard();
     std::wstring name;
-    render(*keymap.second, name);
+    render(*keymap.second, name, *pango_layout.operator ->());
     _cr->move_to(1, 1);
-    _cr->show_text(wstring_to_string(name));
+    pango_layout->set_width(-1); // turn off wrapping
+    pango_layout->set_text(wstring_to_string(name));
+    pango_layout->show_in_cairo_context(_cr);
     _cr->show_page();
   }
 
@@ -109,13 +129,13 @@ render()
 
 void
 Layout::
-render(const kspec::KeyMap &keymap, std::wstring &name)
+render(const kspec::KeyMap &keymap, std::wstring &name, Pango::Layout &pango_layout)
 {
   if (!keymap.base().empty())
   {
     kspec::KeyMaps::const_iterator i = _kb->maps().find(keymap.base());
     assert(i != _kb->maps().end());
-    render(*i->second, name);
+    render(*i->second, name, pango_layout);
   }
 
   if (!name.empty())
@@ -124,13 +144,13 @@ render(const kspec::KeyMap &keymap, std::wstring &name)
 
   for_each(const kspec::Keys::value_type &key, keymap.keys())
   {
-    render(key.second);
+    render(key.second, pango_layout);
   }
 }
 
 void
 Layout::
-render(const kspec::Key &key)
+render(const kspec::Key &key, Pango::Layout &pango_layout)
 {
   const Cairo::Rectangle &rect = _keys[key.location()];
   if (!rect.width || !rect.height)
@@ -142,24 +162,26 @@ render(const kspec::Key &key)
   _cr->rectangle(rect.x + _margin, rect.y + _margin, rect.width - _margin*2, rect.height - _margin*2);
 #endif // DEBUG_LAYOUT
 
+  pango_layout.set_width(rect.width*PANGO_SCALE);   // turn on wrapping
+  pango_layout.set_height(rect.height*PANGO_SCALE);
+
   rounded_rect(rect.x, rect.y, rect.width, rect.height);
   _cr->stroke();
   for_each(const kspec::Bindings::value_type &binding, key.bindings())
   {
     for_each(const kspec::Labels::value_type &label, binding->labels())
     {
-      render(label.second, rect);
+      render(label.second, rect, pango_layout);
     }
   }
 }
 
 void
 Layout::
-render(const kspec::Label &label, const Cairo::Rectangle &rect)
+render(const kspec::Label &label, const Cairo::Rectangle &rect, Pango::Layout &pango_layout)
 {
-  string text = wstring_to_string(label.value());
-  Cairo::TextExtents extents;
-  _cr->get_text_extents(text, extents);
+  Pango::Rectangle extents = pango_layout.get_pixel_logical_extents();
+  pango_layout.set_text(wstring_to_string(label.value()));
 
   double x = rect.x;
   double y = rect.y;
@@ -175,12 +197,12 @@ render(const kspec::Label &label, const Cairo::Rectangle &rect)
     case Label::top_center:
     case Label::center:
     case Label::bottom_center:
-      x += rect.width / 2 - extents.width / 2;
+      x += rect.width / 2 - extents.get_width() / 2;
       break;
     case Label::top_right:
     case Label::bottom_right:
     case Label::center_right:
-      x += rect.width - extents.x_advance - _margin;
+      x += rect.width - extents.get_width() - _margin;
       break;
     default:
       wcout << label.loc_as_str() << endl;
@@ -190,17 +212,17 @@ render(const kspec::Label &label, const Cairo::Rectangle &rect)
     case Label::top_left:
     case Label::top_center:
     case Label::top_right:
-      y += _margin - _max_extents.y_bearing;
+      y += _margin;
       break;
     case Label::center_left:
     case Label::center:
     case Label::center_right:
-      y += rect.height / 2 - _max_extents.height / 2 - _max_extents.y_bearing;
+      y += rect.height / 2 - _max_extents.get_height() / 2;
       break;
     case Label::bottom_left:
     case Label::bottom_center:
     case Label::bottom_right:
-      y += rect.height - _margin - (_max_extents.height + _max_extents.y_bearing);
+      y += rect.height - _margin - _max_extents.get_height();
       break;
     default:
       wcout << label.loc_as_str() << endl;
@@ -208,21 +230,37 @@ render(const kspec::Label &label, const Cairo::Rectangle &rect)
 
   _cr->save();
   _cr->move_to(x, y);
-  _cr->show_text(text);
+  pango_layout.show_in_cairo_context(_cr);
   _cr->restore();
 
 #ifdef DEBUG_LAYOUT
   _cr->save();
   _cr->set_source_rgb(1, 0, 0);
-  _cr->rectangle(x + extents.x_bearing, y + extents.y_bearing, extents.width, extents.height);
+  _cr->rectangle(x,
+                 y,
+                 extents.get_width(),
+                 extents.get_height());
   _cr->stroke();
   _cr->restore();
 
   _cr->save();
   _cr->set_source_rgb(0, 0, 1);
-  _cr->rectangle(x, y, extents.x_advance, extents.y_advance + extents.height + extents.y_bearing);
+  _cr->rectangle(x + extents.get_lbearing(),
+                 y,
+                 extents.get_width() - extents.get_lbearing() - extents.get_rbearing(),
+                 extents.get_ascent());
   _cr->stroke();
   _cr->restore();
+
+  _cr->save();
+  _cr->set_source_rgb(0, 1, 0);
+  _cr->rectangle(x + extents.get_lbearing(),
+                 y + extents.get_ascent(),
+                 extents.get_width() - extents.get_lbearing() - extents.get_rbearing(),
+                 extents.get_descent());
+  _cr->stroke();
+  _cr->restore();
+
 #endif // DEBUG_LAYOUT
 }
 

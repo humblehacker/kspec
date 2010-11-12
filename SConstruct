@@ -3,8 +3,11 @@ import os
 PLATFORM = os.uname()[0].lower()
 
 libs = ['lua', 
+        'glibmm-2.4',
         'cairo',
         'cairomm-1.0',
+        'pango-1.0',
+        'pangomm-1.4',
         'boost_system-mt', 
         'boost_regex-mt', 
         'boost_filesystem-mt',
@@ -36,7 +39,7 @@ if int(debug):
     env.Append(CCFLAGS = '-O0 -g')
     env.Append(LINKFLAGS = '-g')
 
-env.ParseConfig('pkg-config --cflags --libs sigc++-2.0 freetype2 fontconfig pixman-1 cairo cairomm-1.0')
+env.ParseConfig('pkg-config --cflags --libs sigc++-2.0 freetype2 fontconfig pixman-1 cairo cairomm-1.0 glib-2.0 glibmm-2.4 pango pangomm-1.4')
 
 sourcefiles = ['Parser.cpp', 
                'Scanner.cpp', 
