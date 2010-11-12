@@ -104,7 +104,7 @@ render()
 //_cr->scale(10.0, 10.0);
 
   Glib::RefPtr<Pango::Layout> pango_layout = Pango::Layout::create(_cr);
-  Pango::FontDescription desc("Courier");
+  Pango::FontDescription desc("Arial Rounded MT Bold");
   desc.set_absolute_size(_font_size * PANGO_SCALE);
   pango_layout->set_font_description(desc);
   pango_layout->set_wrap(Pango::WRAP_WORD_CHAR);
@@ -152,7 +152,7 @@ void
 Layout::
 render(const kspec::Key &key, Pango::Layout &pango_layout)
 {
-  const Cairo::Rectangle &rect = _keys[key.location()];
+  Cairo::Rectangle rect = _keys[key.location()];
   if (!rect.width || !rect.height)
     return;
 
@@ -162,11 +162,17 @@ render(const kspec::Key &key, Pango::Layout &pango_layout)
   _cr->rectangle(rect.x + _margin, rect.y + _margin, rect.width - _margin*2, rect.height - _margin*2);
 #endif // DEBUG_LAYOUT
 
+  rounded_rect(rect.x, rect.y, rect.width, rect.height);
+  _cr->stroke();
+
+  rect.x += _margin;
+  rect.y += _margin;
+  rect.height -= _margin*2;
+  rect.width -= _margin*2;
+
   pango_layout.set_width(rect.width*PANGO_SCALE);   // turn on wrapping
   pango_layout.set_height(rect.height*PANGO_SCALE);
 
-  rounded_rect(rect.x, rect.y, rect.width, rect.height);
-  _cr->stroke();
   for_each(const kspec::Bindings::value_type &binding, key.bindings())
   {
     for_each(const kspec::Labels::value_type &label, binding->labels())
@@ -183,7 +189,6 @@ render(const kspec::Label &label, const Cairo::Rectangle &rect, Pango::Layout &p
   Pango::Rectangle extents = pango_layout.get_pixel_logical_extents();
   pango_layout.set_text(wstring_to_string(label.value()));
 
-  double x = rect.x;
   double y = rect.y;
 
   using namespace kspec;
@@ -192,20 +197,18 @@ render(const kspec::Label &label, const Cairo::Rectangle &rect, Pango::Layout &p
     case Label::top_left:
     case Label::bottom_left:
     case Label::center_left:
-      x += _margin;
+      pango_layout.set_alignment(Pango::ALIGN_LEFT);
       break;
     case Label::top_center:
     case Label::center:
     case Label::bottom_center:
-      x += rect.width / 2 - extents.get_width() / 2;
+      pango_layout.set_alignment(Pango::ALIGN_CENTER);
       break;
     case Label::top_right:
     case Label::bottom_right:
     case Label::center_right:
-      x += rect.width - extents.get_width() - _margin;
+      pango_layout.set_alignment(Pango::ALIGN_RIGHT);
       break;
-    default:
-      wcout << label.loc_as_str() << endl;
   }
   switch (label.location())
   {
@@ -222,14 +225,12 @@ render(const kspec::Label &label, const Cairo::Rectangle &rect, Pango::Layout &p
     case Label::bottom_left:
     case Label::bottom_center:
     case Label::bottom_right:
-      y += rect.height - _margin - _max_extents.get_height();
+      y += rect.height - _margin - _max_extents.get_height() * pango_layout.get_line_count();
       break;
-    default:
-      wcout << label.loc_as_str() << endl;
   }
 
   _cr->save();
-  _cr->move_to(x, y);
+  _cr->move_to(rect.x, y);
   pango_layout.show_in_cairo_context(_cr);
   _cr->restore();
 

@@ -37,9 +37,8 @@ private:
   Cairo::RefPtr<Cairo::Context> _cr;
   static const double _scale_factor = 30;
   static const double _margin = 1;
-  static const double _font_size = 7;
+  static const double _font_size = 6.5;
   Pango::Rectangle _max_extents;
-//Cairo::TextExtents _max_extents;
   double _width;
   double _height;
   std::map<std::wstring, Cairo::Rectangle> _keys;
