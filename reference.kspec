@@ -1,0 +1,365 @@
+Keyboard:Reference
+
+Matrix:
+
+  Row:     ESC F1  F2  F3  F4  F5  F6  F7  F8  F9  F10 F11 F12 --- PRS SCL PAU --- --- --- ---
+  Row:     _`_  1   2   3   4   5   6   7   8   9   0  _-_ _=_ BAK INS HME PUP NUM k_/ k_* k_-
+  Row:     TAB  Q   W   E   R   T   Y   U   I   O   P  _[_ _]_ _\_ DEL END PDN k_7 k_8 k_7 k_+
+  Row:     CAP  A   S   D   F   G   H   J   K   L  _;_ _'_ ENT --- --- --- --- k_4 k_5 k_6 ---
+  Row:     LSH  Z   X   C   V   B   N   M  _,_ _._ _/_ RSH --- --- --- UP  --- k_1 k_2 k_3 kEN
+  Row:     LCT LGU LAL SPC RAL RGU APP RCT --- --- --- --- --- --- LFT DWN RGT k_0 --- k_. ---
+
+  ColPins: PC0 PC1 PC2 PC3 PC4 PC5 PC6 PC7 PD7 PD6 PD5 PD4 PD3 PD2 PD1 PD0
+  RowPins: PA0 PA1 PA2 PA3 PA4 PA5 PA6
+
+  LED:num_lock    pin:PF0 flow:source
+  LED:caps_lock   pin:PF1 flow:sink
+  LED:scroll_lock pin:PF2 flow:source
+  LED:dv          pin:PF3 flow:sink
+
+  BlockGhostKeys:yes
+
+import "reference_layout.kspec"
+
+KeyMap:Codes
+
+  Key:ESC     Map:ESCAPE                                   c:"ESC"
+
+  Key:F1      Map:F1                                       c:"F1"
+  Key:F2      Map:F2                                       c:"F2"
+  Key:F3      Map:F3                                       c:"F3"
+  Key:F4      Map:F4                                       c:"F4"
+  Key:F5      Map:F5                                       c:"F5"
+  Key:F6      Map:F6                                       c:"F6"
+  Key:F7      Map:F7                                       c:"F7"
+  Key:F8      Map:F8                                       c:"F8"
+  Key:F9      Map:F9                                       c:"F9"
+  Key:F10     Map:F10                                      c:"F10"
+  Key:F11     Map:F11                                      c:"F11"
+  Key:F12     Map:F12                                      c:"F12"
+
+  Key:PRS     Map:PrintScreen                              c:"PRS"
+  Key:SCL     Map:Scroll_Lock                              c:"SCL"
+  Key:PAU     Map:Keyboard_Pause                           c:"PAU"
+
+  Key:HME     Map:Home                                     c:"HME"
+  Key:END     Map:End                                      c:"END"
+
+  Key:INS     Map:Insert                                   c:"INS"
+  Key:DEL     Map:Delete_Forward                           c:"DEL"
+
+  Key:PUP     Map:PageUp                                   c:"PUP"
+  Key:PDN     Map:PageDown                                 c:"PDN"
+
+  Key:_\_     Map:_\_and_|                                 c:"_\\_"
+  Key:TAB     Map:Tab                                      c:"TAB"
+
+  Key:LCT     Map:Left_Control                             c:"LCT"
+  Key:RCT     Map:Right_Control                            c:"RCT"
+
+  Key:LSH     Map:Left_Shift                               c:"LSH"
+  Key:RSH     Map:Right_Shift                              c:"RSH"
+
+  Key:LAL     Map:Left_Alt                                 c:"LAL"
+  Key:RAL     Map:Right_Alt                                c:"RAL"
+
+  Key:LGU     Map:Left_GUI                                 c:"LGU"
+  Key:RGU     Map:Right_GUI                                c:"RGU"
+  Key:APP     Map:Application                              c:"APP"
+
+  Key:UP      Map:UpArrow                                  c:"UP"
+  Key:DWN     Map:DownArrow                                c:"DWN"
+  Key:LFT     Map:LeftArrow                                c:"LFT"
+  Key:RGT     Map:RightArrow                               c:"RGT"
+
+  Key:ENT     Map:Return_or_Enter                          c:"ENT"
+  Key:CAP     Map:Caps_Lock                                c:"CAP"
+  Key:SPC     Map:Spacebar                                 c:"SPC"
+  Key:BAK     Map:Backspace                                c:"BAK"
+
+  Key:NUM     Map:Keypad_Num_Lock_and_Clear                c:"NUM"
+  Key:k_/     Map:Keypad_/                                 c:"k_/"
+  Key:k_*     Map:Keypad_*                                 c:"k_*"
+  Key:k_-     Map:Keypad_-                                 c:"k_-"
+  Key:k_+     Map:Keypad_+                                 c:"k_+"
+  Key:k_.     Map:Keypad_._and_Delete                      c:"k_."
+  Key:k_0     Map:Keypad_0_and_Insert                      c:"k_0"
+  Key:k_1     Map:Keypad_1_and_End                         c:"k_1"
+  Key:k_2     Map:Keypad_2_and_Down_Arrow                  c:"k_2"
+  Key:k_3     Map:Keypad_3_and_PageDn                      c:"k_3"
+  Key:k_4     Map:Keypad_4_and_Left_Arrow                  c:"k_4"
+  Key:k_5     Map:Keypad_5                                 c:"k_5"
+  Key:k_6     Map:Keypad_6_and_Right_Arrow                 c:"k_6"
+  Key:k_7     Map:Keypad_7_and_Home                        c:"k_7"
+  Key:k_8     Map:Keypad_8_and_Up_Arrow                    c:"k_8"
+  Key:k_9     Map:Keypad_9_and_PageUp                      c:"k_9"
+  Key:kEN     Map:Keypad_ENTER                             c:"kEN"
+
+  Key:_`_     Map:_`_and_~                                 c:"_`_"
+  Key:1       Map:1_and_!                                  c:"1"
+  Key:2       Map:2_and_@                                  c:"2"
+  Key:3       Map:3_and_#                                  c:"3"
+  Key:4       Map:4_and_$                                  c:"4"
+  Key:5       Map:5_and_%                                  c:"5"
+  Key:6       Map:6_and_^                                  c:"6"
+  Key:7       Map:7_and_&                                  c:"7"
+  Key:8       Map:8_and_*                                  c:"8"
+  Key:9       Map:9_and_(                                  c:"9"
+  Key:0       Map:0_and_)                                  c:"0"
+  Key:_-_     Map:_-_and_Underscore                        c:"_-_"
+  Key:_=_     Map:_=_and_+                                 c:"_=_"
+
+  Key:Q       Map:q_and_Q                                  c:"Q"
+  Key:W       Map:w_and_W                                  c:"W"
+  Key:E       Map:e_and_E                                  c:"E"
+  Key:R       Map:r_and_R                                  c:"R"
+  Key:T       Map:t_and_T                                  c:"T"
+  Key:Y       Map:y_and_Y                                  c:"Y"
+  Key:U       Map:u_and_U                                  c:"U"
+  Key:I       Map:i_and_I                                  c:"I"
+  Key:O       Map:o_and_O                                  c:"O"
+  Key:P       Map:p_and_P                                  c:"P"
+  Key:_[_     Map:_[_and_{                                 c:"_[_"
+  Key:_]_     Map:_]_and_}                                 c:"_]_"
+
+  Key:A       Map:a_and_A                                  c:"A"
+  Key:S       Map:s_and_S                                  c:"S"
+  Key:D       Map:d_and_D                                  c:"D"
+  Key:F       Map:f_and_F                                  c:"F"
+  Key:G       Map:g_and_G                                  c:"G"
+  Key:H       Map:h_and_H                                  c:"H"
+  Key:J       Map:j_and_J                                  c:"J"
+  Key:K       Map:k_and_K                                  c:"K"
+  Key:L       Map:l_and_L                                  c:"L"
+  Key:_;_     Map:_;_and_:                                 c:"_;_"
+  Key:_'_     Map:squote_and_dquote                        c:"_'_"
+
+  Key:Z       Map:z_and_Z                                  c:"Z"
+  Key:X       Map:x_and_X                                  c:"X"
+  Key:C       Map:c_and_C                                  c:"C"
+  Key:V       Map:v_and_V                                  c:"V"
+  Key:B       Map:b_and_B                                  c:"B"
+  Key:N       Map:n_and_N                                  c:"N"
+  Key:M       Map:m_and_M                                  c:"M"
+  Key:_,_     Map:_,_and_<                                 c:"_,_"
+  Key:_._     Map:_._and_>                                 c:"_._"
+  Key:_/_     Map:_/_and_?                                 c:"_/_"
+
+KeyMap:Common
+
+  Key:ESC     Map:ESCAPE                                   c:"esc"
+
+  Key:F1      Map:F1                                       c:"F1"
+  Key:F2      Map:F2                                       c:"F2"
+  Key:F3      Map:F3                                       c:"F3"
+  Key:F4      Map:F4                                       c:"F4"
+  Key:F5      Map:F5                                       c:"F5"
+  Key:F6      Map:F6                                       c:"F6"
+  Key:F7      Map:F7                                       c:"F7"
+  Key:F8      Map:F8                                       c:"F8"
+  Key:F9      Map:F9                                       c:"F9"
+  Key:F10     Map:F10                                      c:"F10"
+  Key:F11     Map:F11                                      c:"F11"
+  Key:F12     Map:F12                                      c:"F12"
+
+  Key:PRS     Map:PrintScreen                              c:"Print Screen"
+  Key:SCL     Map:Scroll_Lock                              c:"Scroll Lock"
+  Key:PAU     Map:Keyboard_Pause                           c:"Pause Break"
+
+  Key:_`_     Map:_`_and_~                                 bc:"`" tc:"~"
+  Key:1       Map:1_and_!                                  bc:"1" tc:"!"
+  Key:2       Map:2_and_@                                  bc:"2" tc:"@"
+  Key:3       Map:3_and_#                                  bc:"3" tc:"#"
+  Key:4       Map:4_and_$                                  bc:"4" tc:"$"
+  Key:5       Map:5_and_%                                  bc:"5" tc:"%"
+  Key:6       Map:6_and_^                                  bc:"6" tc:"^"
+  Key:7       Map:7_and_&                                  bc:"7" tc:"&"
+  Key:8       Map:8_and_*                                  bc:"8" tc:"*"
+  Key:9       Map:9_and_(                                  bc:"9" tc:"("
+  Key:0       Map:0_and_)                                  bc:"0" tc:")"
+
+  Key:BAK     Map:Backspace                                br:"Backspace"
+  
+  Key:HME     Map:Home                                     c:"Home"
+  Key:END     Map:End                                      c:"End"
+
+  Key:INS     Map:Insert                                   c:"Insert"
+  Key:DEL     Map:Delete_Forward                           c:"Delete"
+
+  Key:PUP     Map:PageUp                                   c:"Page Up"
+  Key:PDN     Map:PageDown                                 c:"Page Down"
+
+  Key:_\_     Map:_\_and_|                                 bc:"\\" tc:"|"
+  Key:TAB     Map:Tab                                      bl:"Tab"
+
+  Key:LCT     Map:Left_Control                             bl:"Control"
+  Key:RCT     Map:Right_Control                            br:"Control"
+
+  Key:LSH     Map:Left_Shift                               bl:"Shift"
+  Key:RSH     Map:Right_Shift                              br:"Shift"
+
+  Key:LAL     Map:Left_Alt                                 bc:"Alt"
+  Key:RAL     Map:Right_Alt                                bc:"Alt"
+
+  Key:LGU     Map:Left_GUI                                 bc:"{gui}"
+  Key:RGU     Map:Right_GUI                                bc:"{gui}"
+  Key:APP     Map:Application                              bc:"{app}"
+
+  Key:UP      Map:UpArrow                                  c:"Up"
+  Key:DWN     Map:DownArrow                                c:"Down"
+  Key:LFT     Map:LeftArrow                                c:"Left"
+  Key:RGT     Map:RightArrow                               c:"Right"
+
+  Key:ENT     Map:Return_or_Enter                          br:"Return"
+  Key:CAP     Map:Caps_Lock                                bl:"Caps Lock"
+  Key:SPC     Map:Spacebar                                 
+
+  Key:NUM     Map:Keypad_Num_Lock_and_Clear                c:"Num Lock"
+  Key:k_/     Map:Keypad_/                                 c:"/"
+  Key:k_*     Map:Keypad_*                                 c:"*"
+  Key:k_-     Map:Keypad_-                                 c:"-"
+  Key:k_+     Map:Keypad_+                                 c:"+"
+  Key:k_.     Map:Keypad_._and_Delete                      c:"."
+  Key:k_0     Map:Keypad_0_and_Insert                      c:"0"
+  Key:k_1     Map:Keypad_1_and_End                         c:"1"
+  Key:k_2     Map:Keypad_2_and_Down_Arrow                  c:"2"
+  Key:k_3     Map:Keypad_3_and_PageDn                      c:"3"
+  Key:k_4     Map:Keypad_4_and_Left_Arrow                  c:"4"
+  Key:k_5     Map:Keypad_5                                 c:"5"
+  Key:k_6     Map:Keypad_6_and_Right_Arrow                 c:"6"
+  Key:k_7     Map:Keypad_7_and_Home                        c:"7"
+  Key:k_8     Map:Keypad_8_and_Up_Arrow                    c:"8"
+  Key:k_9     Map:Keypad_9_and_PageUp                      c:"9"
+  Key:kEN     Map:Keypad_ENTER                             c:"Enter"
+
+KeyMap:USQwerty base:Common
+
+  Key:_-_     Map:_-_and_Underscore                        bc:"-" tc:"_"
+  Key:_=_     Map:_=_and_+                                 bc:"=" tc:"+"
+
+  Key:Q       Map:q_and_Q                                  c:"Q"
+  Key:W       Map:w_and_W                                  c:"W"
+  Key:E       Map:e_and_E                                  c:"E"
+  Key:R       Map:r_and_R                                  c:"R"
+  Key:T       Map:t_and_T                                  c:"T"
+  Key:Y       Map:y_and_Y                                  c:"Y"
+  Key:U       Map:u_and_U                                  c:"U"
+  Key:I       Map:i_and_I                                  c:"I"
+  Key:O       Map:o_and_O                                  c:"O"
+  Key:P       Map:p_and_P                                  c:"P"
+  Key:_[_     Map:_[_and_{                                 bc:"[" tc:"{"
+  Key:_]_     Map:_]_and_}                                 bc:"]" tc:"}"
+
+  Key:A       Map:a_and_A                                  c:"A"
+  Key:S       Map:s_and_S                                  c:"S"
+  Key:D       Map:d_and_D                                  c:"D"
+  Key:F       Map:f_and_F                                  c:"F"
+  Key:G       Map:g_and_G                                  c:"G"
+  Key:H       Map:h_and_H                                  c:"H"
+  Key:J       Map:j_and_J                                  c:"J"
+  Key:K       Map:k_and_K                                  c:"K"
+  Key:L       Map:l_and_L                                  c:"L"
+  Key:_;_     Map:_;_and_:                                 bc:";" tc:":"
+  Key:_'_     Map:squote_and_dquote                        bc:"'" tc:"\""
+
+  Key:Z       Map:z_and_Z                                  c:"Z"
+  Key:X       Map:x_and_X                                  c:"X"
+  Key:C       Map:c_and_C                                  c:"C"
+  Key:V       Map:v_and_V                                  c:"V"
+  Key:B       Map:b_and_B                                  c:"B"
+  Key:N       Map:n_and_N                                  c:"N"
+  Key:M       Map:m_and_M                                  c:"M"
+  Key:_,_     Map:_,_and_<                                 bc:"," tc:"<"
+  Key:_._     Map:_._and_>                                 bc:"." tc:">"
+  Key:_/_     Map:_/_and_?                                 bc:"/" tc:"?"
+
+KeyMap:Dvorak base:USQwerty default
+
+  Key:Q       Map:squote_and_dquote                        tc:"\"" bc:"\'"
+  Key:W       Map:_,_and_<                                 tc:"<"  bc:","
+  Key:E       Map:_._and_>                                 tc:">"  bc:"."
+  Key:R       Map:p_and_P                                  c:"P"
+  Key:T       Map:y_and_Y                                  c:"Y"
+  Key:Y       Map:f_and_F                                  c:"F"
+  Key:U       Map:g_and_G                                  c:"G"
+  Key:I       Map:c_and_C                                  c:"C"
+  Key:O       Map:r_and_R                                  c:"R"
+  Key:P       Map:l_and_L                                  c:"L"
+  Key:_[_     Map:_/_and_?                                 bc:"/" tc:"?"
+  Key:_]_     Map:_=_and_+                                 bc:"=" tc:"+"
+
+  Key:S       Map:o_and_O                                  c:"O"
+  Key:D       Map:e_and_E                                  c:"E"
+  Key:F       Map:u_and_U                                  c:"U"
+  Key:G       Map:i_and_I                                  c:"I"
+  Key:H       Map:d_and_D                                  c:"D"
+  Key:J       Map:h_and_H                                  c:"H"
+  Key:K       Map:t_and_T                                  c:"T"
+  Key:L       Map:n_and_N                                  c:"N"
+  Key:_;_     Map:s_and_S                                  c:"S"
+  Key:_'_     Map:_-_and_Underscore                        bc:"-" tc:"_"
+
+  Key:Z       Map:_;_and_:                                 tc:":"  bc:";"
+  Key:X       Map:q_and_Q                                  c:"Q"
+  Key:C       Map:j_and_J                                  c:"J"
+  Key:V       Map:k_and_K                                  c:"K"
+  Key:B       Map:x_and_X                                  c:"X"
+  Key:N       Map:b_and_B                                  c:"B"
+  Key:_,_     Map:w_and_W                                  c:"W"
+  Key:_._     Map:v_and_V                                  c:"V"
+  Key:_/_     Map:z_and_Z                                  c:"Z"
+
+KeyMap:pDV base:Dvorak
+
+  Key:_`_     Map:4_and_$ <shift>                          bc:"$"
+    | <shift> Map:_`_and_~ <shift>                         tc:"~"
+  Key:1       Map:7_and_& <shift>                          bc:"&"
+    | <shift> Map:5_and_% <shift>                          tc:"%"
+  Key:2       Map:_[_and_{                                 bc:"["
+    | <shift> Map:7_and_&                                  tc:"7"
+  Key:3       Map:_[_and_{ <shift>                         bc:"{"
+    | <shift> Map:5_and_%                                  tc:"5"
+  Key:4       Map:_]_and_} <shift>                         bc:"}"
+    | <shift> Map:3_and_#                                  tc:"3"
+  Key:5       Map:9_and_( <shift>                          bc:"("
+    | <shift> Map:1_and_!                                  tc:"1"
+  Key:6       Map:_=_and_+                                 bc:"="
+    | <shift> Map:9_and_(                                  tc:"9"
+  Key:7       Map:8_and_* <shift>                          bc:"*"
+    | <shift> Map:0_and_)                                  tc:"0"
+  Key:8       Map:0_and_) <shift>                          bc:")"
+    | <shift> Map:2_and_@                                  tc:"2"
+  Key:9       Map:_=_and_+ <shift>                         bc:"+"
+    | <shift> Map:4_and_$                                  tc:"4"
+  Key:0       Map:_]_and_}                                 bc:"]"
+    | <shift> Map:6_and_^                                  tc:"6"
+  Key:_-_     Map:1_and_! <shift>                          bc:"!"
+    | <shift> Map:8_and_*                                  tc:"8"
+  Key:_=_     Map:3_and_# <shift>                          bc:"#"
+    | <shift> Map:_`_and_~                                 tc:"'"
+
+KeyMap:Colemak base:USQwerty
+
+  Key:Q       Map:q_and_Q                                  c:"Q"
+  Key:W       Map:w_and_W                                  c:"W"
+  Key:E       Map:f_and_F                                  c:"F"
+  Key:R       Map:p_and_P                                  c:"P"
+  Key:T       Map:g_and_G                                  c:"G"
+  Key:Y       Map:j_and_J                                  c:"J"
+  Key:U       Map:l_and_L                                  c:"L"
+  Key:I       Map:u_and_U                                  c:"U"
+  Key:O       Map:y_and_Y                                  c:"Y"
+  Key:P       Map:_;_and_:                                 bc:";" tc:":"
+
+  Key:A       Map:a_and_A                                  c:"A"
+  Key:S       Map:r_and_R                                  c:"R"
+  Key:D       Map:s_and_S                                  c:"S"
+  Key:F       Map:t_and_T                                  c:"T"
+  Key:G       Map:d_and_D                                  c:"D"
+  Key:J       Map:n_and_N                                  c:"N"
+  Key:K       Map:e_and_E                                  c:"E"
+  Key:L       Map:i_and_I                                  c:"I"
+  Key:_;_     Map:o_and_O                                  c:"O"
+
+  Key:N       Map:k_and_K                                  c:"K"
+
