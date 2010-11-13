@@ -17,8 +17,11 @@ Scanner.h
 kspec
 generated
 *.exe
+Debug
 
 # misc
 .DS_Store
 *.tbz
 *.zip
+*.png
+*.pdf
