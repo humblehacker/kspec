@@ -6,6 +6,7 @@
 #include <iterator>
 #include <cassert>
 #include <string>
+#include <boost/algorithm/string.hpp>
 
 #include "Scanner.h"
 #include "Parser.h"
@@ -14,6 +15,7 @@
 #include "layout.h"
 
 using namespace std;
+using boost::to_lower;
 
 kspec::Keyboard::Ptr parse(const wstring &input_filename);
 void dump(kspec::Keyboard &kb);
@@ -44,6 +46,7 @@ main (int argc, char *argv[])
     {
       RenderType dt;
       string s = options["render"].as<string>();
+      to_lower(s);
       if (s == "pdf")
         dt = RENDER_PDF;
       else if (s == "png")
