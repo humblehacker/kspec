@@ -136,6 +136,13 @@ process_options(int argc, char *argv[],
     return false;
   }
 
+  if (!options.count("input-file"))
+  {
+    cerr << "Error: missing input file" << endl;
+    cerr << usage;
+    return false;
+  }
+
   return true;
 }
 
